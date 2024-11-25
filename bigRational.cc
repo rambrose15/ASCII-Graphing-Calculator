@@ -178,7 +178,9 @@ class BigNum {
         return findGCD(b.modulo(a), a);
     } public:
 
-    string getDecimal(){
+    bool isNegative() const { return negative; }
+
+    string getDecimal() const {
         string s;
         if (negative) s +=  "-";
         for (int i = len-1; i >= 0; i--) {
@@ -244,16 +246,19 @@ class BigRational{
 
     // Currently only works for integer powers
     BigRational operator^(const BigRational& other) const{ 
-        return BigRational(numerator ^ other.numerator, denominator ^ other.numerator);
+        if (other.isNegative()) return BigRational(numerator ^ other.numerator, denominator ^ other.numerator);
+        else return BigRational(denominator ^ other.numerator, numerator ^ other.numerator);
     }
 
-    string getDecimal(){
+    bool isNegative() const { return numerator.isNegative() ^ denominator.isNegative(); }
+
+    string getDecimal() const {
         return numerator.getDecimal() + " | " + denominator.getDecimal();
     }
-    string getNumeratorDecimal(){
+    string getNumeratorDecimal() const {
         return numerator.getDecimal();
     }
-    string getDenominatorDecimal(){
+    string getDenominatorDecimal() const {
         return denominator.getDecimal();
     }
 };

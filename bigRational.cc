@@ -99,14 +99,16 @@ class BigNum {
             while (!digits.empty() && digits.back() == 0) digits.pop_back();
             len = digits.size();
         }
-        
+    }
+
+    bool operator==(const BigNum& other) const{
+        return negative == other.negative && digits == other.digits;
     }
 
     BigNum operator+(const BigNum& other) const {
         if (negative && other.negative) return BigNum(addUnsigned(other), true);
         else if (!negative && !other.negative) return BigNum(addUnsigned(other), false);
-        bool isMax = len > other.len || (len == other.len && digits.back() > other.digits.back());
-        if (isMax) return BigNum(subUnsigned(other), negative);
+        if (other.abs() < abs()) return BigNum(subUnsigned(other), negative);
         else return BigNum(other.subUnsigned(*this), other.negative);
     }
 
@@ -196,7 +198,12 @@ class BigRational{
     BigNum numerator, denominator;
     
     void reduce(){
-        numerator.gcdReduce(denominator);
+        if (numerator == BigNum("0")) denominator = BigNum("1");
+        else numerator.gcdReduce(denominator);
+        if (denominator.isNegative()){
+            denominator = -denominator;
+            numerator = -numerator;
+        }
     }
 
     public:
@@ -246,8 +253,8 @@ class BigRational{
 
     // Currently only works for integer powers
     BigRational operator^(const BigRational& other) const{ 
-        if (other.isNegative()) return BigRational(numerator ^ other.numerator, denominator ^ other.numerator);
-        else return BigRational(denominator ^ other.numerator, numerator ^ other.numerator);
+        if (!other.isNegative()) return BigRational(numerator ^ other.numerator, denominator ^ other.numerator);
+        else return BigRational(denominator ^ (-other.numerator), numerator ^ (-other.numerator));
     }
 
     bool isNegative() const { return numerator.isNegative() ^ denominator.isNegative(); }

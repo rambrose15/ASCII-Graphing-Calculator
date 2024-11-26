@@ -2,8 +2,8 @@
 #include <variant>
 #include <memory>
 #include <vector>
-#include <utility>
-using std::string, std::variant, std::unique_ptr, std::vector, std::pair;
+using std::string, std::variant, std::unique_ptr, std::vector;
+
 
 enum TokenType{
   LPAR, RPAR, // ( )
@@ -24,44 +24,13 @@ enum TokenType{
   START_STATE // Initial state which is decomposed
 };
 
+struct Token{
+  TokenType type; // Always a terminal token type
+  string lexeme; // The characters it represents
+};
+
 struct TokenTree{
   TokenType type;
+  // The following is a 
   vector<variant<unique_ptr<TokenTree>,unique_ptr<Token>>> tree;
-};
-
-struct Token{
-  TokenType type;
-  string lexeme;
-};
-
-class Tokenizer{
-  using TokenList = vector<TokenType>;
-  vector<pair<TokenType,TokenList>> transformationRules = {
-    { START_STATE, TokenList{ EXPR }},
-    { START_STATE, TokenList{ EXPR, LCURL, INEQ, RCURL }},
-    { START_STATE, TokenList{ LSQR, EXPR, COMMA, EXPR, RSQR }},
-    { START_STATE, TokenList{ LSQR, EXPR, COMMA, EXPR, RSQR, EXPR }},
-    { EXPR, TokenList{ EXPR, PLUS, TERM }},
-     { EXPR, TokenList{ EXPR, NEG, TERM }},
-    { EXPR, TokenList{ TERM }},
-    { TERM, TokenList{ TERM, MD, FACTOR }},
-    { TERM, TokenList{ TERM, FACTOR }},
-    { TERM, TokenList{ FACTOR }},
-    { FACTOR, TokenList{ FACTOR, EXPON, POWER }},
-    { FACTOR, TokenList{ POWER }},
-    { POWER, TokenList{ NEG, UNSIGNED }},
-    { POWER, TokenList{ UNSIGNED }},
-    { UNSIGNED, TokenList{ LPAR, EXPR, RPAR }},
-    { UNSIGNED, TokenList{ FNAME, LPAR, EXPR, RPAR }},
-    { UNSIGNED, TokenList{ VNAME }},
-    { UNSIGNED, TokenList{ NUM }},
-    { INEQ, TokenList{ EXPR, INEQOP, EXPR, INEQOP, EXPR }},
-    { INEQ, TokenList{ EXPR, INEQOP, EXPR }}
-    };
-
-    public:
-
-    TokenTree generateParseTree(const vector<Token>& tokenString){
-      // Parse function
-    }
 };

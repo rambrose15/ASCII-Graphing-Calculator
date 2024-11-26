@@ -3,7 +3,8 @@
 #include <map>
 #include <utility>
 #include <string>
-#include "token.cc"
+#include <cctype>
+#include "parser.cc"
 using std::vector;
 using std::set;
 using std::pair;
@@ -41,11 +42,13 @@ class Formula{
 
     pair<char,VarType> updateString(string fullFormula){
       // Splits the formula string into the parts before and after the = sign
+      prefix = "";
       for (size_t ind = 0, n = fullFormula.length(); ind < n; ind++){
         if (fullFormula[ind] == '='){
-          prefix = string(fullFormula.begin(), fullFormula.begin() + ind);
-          formulaString = string(fullFormula.begin() + ind, fullFormula.end());
+          formulaString = string(fullFormula.begin() + ind + 1, fullFormula.end());
+          break;
         }
+        else if (!std::isspace(fullFormula[ind])) prefix += fullFormula[ind];
       }
 
       name = freeVar = 0;
@@ -77,11 +80,12 @@ class Formula{
         }
       }
 
-      throw("Invalid prefix");
+      throw string{"Invalid prefix"};
     }
 
     void tokenize(const map<char,pair<int,VarType>>& varMap, const map<string,VarType>& preDefs){
       for (size_t ind = 0, n = formulaString.length(); ind < n; ind++){
+        if (isspace(formulaString[ind])) continue;
         switch(formulaString[ind]){
           case '(': tokenList.push_back(Token{LPAR, "("}); break;
           case ')': tokenList.push_back(Token{RPAR, ")"}); break;
@@ -105,19 +109,22 @@ class Formula{
           default:
             bool resolved = true;
             if (('0' <= formulaString[ind] && formulaString[ind] <= '9') || formulaString[ind] == '.'){
-              size_t startInd = ind;
+              size_t currentInd = ind;
               bool seenDecimal = false;
-              while (('0' <= formulaString[ind]&& formulaString[ind] <= '9') || formulaString[ind] == '.'){
-                if (formulaString[ind] == '.'){
+              while (('0' <= formulaString[currentInd]&& formulaString[currentInd] <= '9') || formulaString[currentInd] == '.'){
+                if (formulaString[currentInd] == '.'){
                   if (seenDecimal) {
                     resolved = false;
                     break;
                   }
                   seenDecimal = true;
                 }
-                ind++;
+                currentInd++;
               }
-              if (resolved) tokenList.push_back(Token{NUM, formulaString.substr(startInd, ind - startInd)});
+              if (resolved) {
+                tokenList.push_back(Token{NUM, formulaString.substr(ind, currentInd - ind)});
+                ind = currentInd - 1;
+              }
             } 
             else{
               resolved = false;
@@ -132,7 +139,7 @@ class Formula{
                 }
               }
               // Check against user-defined functions and variables
-              if (resolved) for (auto var = varMap.begin(); var != varMap.end(); var++){
+              if (!resolved) for (auto var = varMap.begin(); var != varMap.end(); var++){
                 if (formulaString[ind] == var->first){
                   if (var->second.second == Function) tokenList.push_back(Token{FNAME, string{var->first}});
                   else tokenList.push_back(Token{VNAME, string{var->first}});
@@ -140,9 +147,17 @@ class Formula{
                   break;
                 }
               }
+
+              // Check the free variable
+              if (!resolved && formulaString[ind] == freeVar){
+                tokenList.push_back(Token{VNAME, string{freeVar}});
+                resolved = true;
+              }
             }
-            if (!resolved) throw "Unable to parse at " + std::to_string(ind);
+            if (!resolved) throw string{"Unrecognized sequence of characters: "} + formulaString.substr(ind);
         }
       }
     }
+
+    const vector<Token>& getTokens() { return tokenList; }
 };

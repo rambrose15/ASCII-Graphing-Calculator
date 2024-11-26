@@ -31,18 +31,3 @@ int main(int argc, char* args[]){
     testNum++;
   }
 }
-
-void unitTests(){
-  (BigNum("-123456789101112131415") + BigNum("123456789101112131400")).getDecimal();
-  /*assert(BigNum("01234567890783740287390237902374").getDecimal() == "1234567890783740287390237902374");
-  assert(BigNum("-000000010525555555").getDecimal() == "-10525555555");
-  assert((BigNum("560123456") + BigNum("960123456")).getDecimal() == "1520246912");
-  assert((BigNum("-1234567891011121314") - BigNum("-11234567891011121314")).getDecimal() == "10000000000000000000");
-  assert((BigNum("4") - BigNum("100")).getDecimal() == "-96");
-  assert((BigNum("111111111111") * BigNum("-1234567891011")).getDecimal() == "-137174210112196159123221");
-  assert((BigNum("1234567891011") ^ BigNum("3")).getDecimal() == "1881676376411925699615487319217434331");
-  assert((-BigNum("-222222222222")).getDecimal() == "222222222222");
-  BigNum b1("293391909323"), b2("12954895625");
-  b1.gcdReduce(b2);
-  assert((b1.getDecimal() + "|" + b2.getDecimal()) == "33984931|1500625");*/
-}

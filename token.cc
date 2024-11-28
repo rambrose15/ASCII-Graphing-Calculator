@@ -30,7 +30,9 @@ struct Token{
 };
 
 struct TokenTree{
-  TokenType type;
-  // The following is a 
+  TokenType type; // Always a non-terminal token type
+
+  // This serves as a sequence of terminal tokens and token tree rooted at non-terminal tokens
+  // This will be of the form of one of the transformation rules for the above TokenType
   vector<variant<unique_ptr<TokenTree>,unique_ptr<Token>>> tree;
 };

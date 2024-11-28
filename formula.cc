@@ -5,11 +5,7 @@
 #include <string>
 #include <cctype>
 #include "parser.cc"
-using std::vector;
-using std::set;
-using std::pair;
-using std::map;
-using std::string;
+using std::vector, std::set, std::pair, std::map, std::string;
 
 class Formula;
 
@@ -21,7 +17,6 @@ class FormulaList{
   vector<Formula> formulaList;
   map<char,pair<int,VarType>> varMap;
 };
-
 
 class Formula{
   set<char> dependencies; // The set of all other formulas this is defined in terms of

@@ -3,10 +3,7 @@
 #include "../../bigRational.cc"
 using std::string, std::cin, std::cout, std::endl;
 
-void unitTests();
-
 int main(int argc, char* args[]){
-  unitTests();
   string s, t, op;
   int testNum = 1;
   while (cin >> s){

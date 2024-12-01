@@ -6,7 +6,6 @@
 #include <cctype>
 
 #include "formula.h"
-#include "parser.h"
 #include "bigRational.h"
 
 using std::vector, std::set, std::pair, std::map, std::string;
@@ -105,20 +104,20 @@ const Parser::ParseTree& Formula::parse(Parser parser){
   return parseTree;
 }
 
-ErrorStatus Constant::checkValidity() const {
+FormulaError Constant::checkValidity() const {
   if (!getParameters().empty()) return CONSTANT_VIOLATION;
   return NONE;
 }
 
-ErrorStatus Parameter::checkValidity() const {
+FormulaError Parameter::checkValidity() const {
   if (!getParameters().empty()) return CONSTANT_VIOLATION;
   return NONE;
 }
 
-ErrorStatus Expression::checkValidity() const {
+FormulaError Expression::checkValidity() const {
   return NONE;
 }
 
-ErrorStatus Function::checkValidity() const {
+FormulaError Function::checkValidity() const {
   return NONE;
 }

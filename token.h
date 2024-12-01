@@ -1,5 +1,5 @@
-#ifndef __TOKEN__H__
-#define __TOKEN__H__
+#ifndef __TOKEN_H__
+#define __TOKEN_H__
 
 #include <string>
 #include <variant>

@@ -8,7 +8,6 @@
 
 using std::string, std::map, std::unique_ptr, std::vector;
 
-
 bool FormulaList::isValidName(char c){
   return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'); 
 }

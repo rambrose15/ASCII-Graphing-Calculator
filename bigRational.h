@@ -1,5 +1,5 @@
-#ifndef __BIG_RATIONAL__H__
-#define __BIG_RATIONAL__H__
+#ifndef __BIG_RATIONAL_H__
+#define __BIG_RATIONAL_H__
 
 #include <vector>
 #include <string>

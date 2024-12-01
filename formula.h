@@ -1,5 +1,5 @@
-#ifndef __FORMULA__H__
-#define __FORMULA__H__
+#ifndef __FORMULA_H__
+#define __FORMULA_H__
 
 #include <map>
 #include <string>
@@ -7,15 +7,10 @@
 
 #include "token.h"
 #include "parser.h"
+#include "formulaError.h"
 
 enum FormulaType{
   CONSTANT, PARAMETER, EXPRESSION, FUNCTION
-};
-
-enum ErrorStatus {
-  NONE, PREFIX, TOKENIZATION, PARSE,
-  CONSTANT_VIOLATION, PARAMETER_VIOLATION, EXPRESSION_VIOLATION, FUNCTION_VIOLATION, 
-  INVALID_DEPENDENCY, UNRESOLVABLE_DEPENDENCY, DNE_DEPENDENCY
 };
 
 class Formula{
@@ -36,7 +31,7 @@ class Formula{
 
   virtual ~Formula() = default;
 
-  virtual ErrorStatus checkValidity() const = 0;
+  virtual FormulaError checkValidity() const = 0;
 
   bool tokenize(const std::map<char,FormulaType>& varMap, 
     const std::map<std::string,FormulaType>& preDefs);
@@ -56,13 +51,13 @@ class Formula{
 class Constant : public Formula {
   public:
   Constant(char name, std::string formulaString): Formula{name, formulaString} {}
-  ErrorStatus checkValidity() const override;
+  FormulaError checkValidity() const override;
 };
 
 class Parameter : public Formula {
   public:
   Parameter(char name, std::string formulaString): Formula{name, formulaString} {}
-  ErrorStatus checkValidity() const override;
+  FormulaError checkValidity() const override;
 };
 
 class Expression : public Formula {
@@ -72,7 +67,7 @@ class Expression : public Formula {
   public:
 
   Expression(char name, std::string formulaString): Formula{name, formulaString} {}
-  ErrorStatus checkValidity() const override;
+  FormulaError checkValidity() const override;
 };
 
 class Function : public Formula {
@@ -83,7 +78,7 @@ class Function : public Formula {
   public:
 
   Function(char name, std::string formulaString, char freeVar): Formula{name, formulaString}, freeVar{freeVar} {}
-  ErrorStatus checkValidity() const override;
+  FormulaError checkValidity() const override;
 };
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef __PARSER__H__
-#define __PARSER__H__
+#ifndef __PARSER_H__
+#define __PARSER_H__
 
 #include <utility>
 #include <deque>
@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+
 #include "token.h"
 
 class ParseError{};

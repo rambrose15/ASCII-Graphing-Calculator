@@ -11,7 +11,8 @@
 
 using std::vector, std::set, std::pair, std::map, std::string;
 
-void Formula::tokenize(const map<char,pair<int,FormulaType>>& varMap, const map<string,FormulaType>& preDefs){
+bool Formula::tokenize(const map<char,FormulaType>& varMap, const map<string,FormulaType>& preDefs){
+  // Processes the formulaString into a sequence of tokens
   for (size_t ind = 0, n = formulaString.length(); ind < n; ind++){
     if (isspace(formulaString[ind])) continue;
     switch(formulaString[ind]){
@@ -59,7 +60,7 @@ void Formula::tokenize(const map<char,pair<int,FormulaType>>& varMap, const map<
           // Check first against pre-defined functions list
           for (auto def = preDefs.begin(); def != preDefs.end(); def++){
             if (def->first.length() + ind <= n && def->first == formulaString.substr(ind, def->first.length())){
-              if (def->second == Function) tokenList.push_back(Token{FNAME, def->first});
+              if (def->second == FUNCTION) tokenList.push_back(Token{FNAME, def->first});
               else tokenList.push_back(Token{VNAME, def->first});
               ind += def->first.length()-1;
               resolved = true;
@@ -69,7 +70,7 @@ void Formula::tokenize(const map<char,pair<int,FormulaType>>& varMap, const map<
           // Check against user-defined functions and variables
           if (!resolved) for (auto var = varMap.begin(); var != varMap.end(); var++){
             if (formulaString[ind] == var->first){
-              if (var->second.second == Function) tokenList.push_back(Token{FNAME, string{var->first}});
+              if (var->second == FUNCTION) tokenList.push_back(Token{FNAME, string{var->first}});
               else tokenList.push_back(Token{VNAME, string{var->first}});
               resolved = true;
               break;
@@ -82,21 +83,42 @@ void Formula::tokenize(const map<char,pair<int,FormulaType>>& varMap, const map<
             resolved = true;
           }
         }
-        if (!resolved) throw string{"Unrecognized sequence of characters: "} + formulaString.substr(ind);
+        if (!resolved) return false;
     }
   }
-  updateDependencies();
-}
-
-void Formula::getDependencies(){
+  
+  // Get dependency and parameters list from the newly created token list
   for (Token t : tokenList){
     if (t.type == FNAME || t.type == VNAME){
-      dependencies.insert(t.lexeme[0]);
+      if (preDefs.find(t.lexeme) == preDefs.end()) {
+        dependencies.insert(t.lexeme[0]);
+        if (varMap.at(t.lexeme[0]) == PARAMETER) parameters.insert(t.lexeme[0]);
+      }
     }
   }
+
+  return true;
 }
 
 const Parser::ParseTree& Formula::parse(Parser parser){
   parseTree = parser.parseTokens(tokenList);
   return parseTree;
+}
+
+ErrorStatus Constant::checkValidity() const {
+  if (!getParameters().empty()) return CONSTANT_VIOLATION;
+  return NONE;
+}
+
+ErrorStatus Parameter::checkValidity() const {
+  if (!getParameters().empty()) return CONSTANT_VIOLATION;
+  return NONE;
+}
+
+ErrorStatus Expression::checkValidity() const {
+  return NONE;
+}
+
+ErrorStatus Function::checkValidity() const {
+  return NONE;
 }

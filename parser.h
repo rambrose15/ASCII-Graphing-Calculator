@@ -10,6 +10,8 @@
 #include <string>
 #include "token.h"
 
+class ParseError{};
+
 class Parser{
   public:
   using ParseTree = std::variant<std::unique_ptr<TokenTree>,std::unique_ptr<Token>>;

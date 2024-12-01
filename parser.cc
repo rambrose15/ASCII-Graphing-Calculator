@@ -31,6 +31,6 @@ Parser::ParseForest Parser::generateParseTree(TokenList structure, const vector<
 
 Parser::ParseTree Parser::parseTokens(const vector<Token>& tokenSeq){
   ParseForest parseTree = generateParseTree(deque<TokenType>{START}, tokenSeq, 0, tokenSeq.size());
-  if (!parseTree.first) throw string{"Unable to parse"};
+  if (!parseTree.first) throw ParseError{};
   return std::move(parseTree.second.front());
 }

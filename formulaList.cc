@@ -114,12 +114,12 @@ void FormulaList::updateFormula(int index, const string& fullFormula){
   // Determine parameters
   vector<int> order = circularCheck();
   for (int i = 0, n = order.size(); i < n; i++){
-    if (errorStatus[i] != NONE) continue;
+    if (errorStatus[order[i]] != NONE) continue;
     for (int j = i+1; j < n; j++){
-      if (errorStatus[i] != NONE) continue;
-      if (formulaSet[j]->getDependencies().count(formulaSet[i]->getName())){
-        for (auto p : formulaSet[i]->getParameters()){
-          formulaSet[j]->addParameter(p);
+      if (errorStatus[order[j]] != NONE) continue;
+      if (formulaSet[order[j]]->getDependencies().count(formulaSet[order[i]]->getName())){
+        for (auto p : formulaSet[order[i]]->getParameters()){
+          formulaSet[order[j]]->addParameter(p);
         }
       }
     }
@@ -137,13 +137,16 @@ void FormulaList::updateFormula(int index, const string& fullFormula){
     for (auto d : formulaSet[ind]->getDependencies()){
       if (errorStatus[nameIndexMapping[d]] != NONE){
         errorStatus[ind] = INVALID_DEPENDENCY;
-      } else {
-        try{
-          formulaSet[ind]->parse(parser);
-        } catch (ParseError){
-          errorStatus[ind] = PARSE;
-        }
+        break;
+      } 
+    }
+    if (errorStatus[ind] == NONE){
+      try{
+        formulaSet[ind]->parse(parser);
+      } catch (ParseError){
+        errorStatus[ind] = PARSE;
       }
     }
   }
 }
+

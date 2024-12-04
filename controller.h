@@ -11,10 +11,6 @@ enum KeyPress{
 };
 
 class Controller{
-  std::map<int,KeyPress> keyMapping = {
-    {ERR, NOPRESS}, {KEY_UP, UPARROW}, {KEY_DOWN, DOWNARROW}, {KEY_LEFT, LEFTARROW},
-    {KEY_RIGHT, RIGHTARROW}, {KEY_ENTER, ENTER}, {KEY_BACKSPACE, BACKSPACE}
-  };
 
   public:
     std::variant<char,KeyPress> getInput();

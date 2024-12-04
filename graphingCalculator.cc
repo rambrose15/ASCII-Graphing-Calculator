@@ -13,7 +13,7 @@ GraphingCalculator::~GraphingCalculator(){
 
 void GraphingCalculator::configureCurses(){
   initscr();
-  setlocale(LC_CTYPE, "");
+  setlocale(LC_ALL, "");
   cbreak();
   noecho();
   keypad(stdscr, TRUE);

@@ -70,6 +70,12 @@ void Model::processCommandDefault(){
 }
 
 ExitStatus Model::runModel(){
+  commandCursorIndex = 0;
+  currentCommand = "";
+
+  updateScreenDimensions();
+  view->wipe();
+  view->moveCursor(maxRow-2, commandCursorIndex);
   while (exitStatus == NOSTATUS){
     updateScreenDimensions();
     if (commandMode){

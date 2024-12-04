@@ -2,14 +2,14 @@
 
 using std::string, std::vector;
 
-View::View(){
-  start_color();
-}
+void View::moveCursor(int row, int col) { move(row, col); }
 
 void View::updatePlace(int row, int col, char newChar, Colour colour){
   init_pair(1, colourMapping[colour], COLOR_BLACK);
+  attron(COLOR_PAIR(1));
   mvaddch(row, col, newChar);
-  init_pair(1, COLOR_WHITE, COLOR_BLACK);
+  //mvaddch(row, col, 'X');
+  attroff(COLOR_PAIR(1));
 }
 
 void View::updateRow(int row, const std::string& newString, const std::vector<Colour>& colours){

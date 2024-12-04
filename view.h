@@ -24,7 +24,7 @@ class View{
   };
   
   public:
-    View();
+    void moveCursor(int row, int col);
     void updatePlace(int row, int col, char newChar, Colour = WHITE);
     void updateRow(int row, const std::string& newString, const std::vector<Colour>& colour = {});
     void updateColumn(int col, const std::string& newString, const std::vector<Colour>& colours = {});

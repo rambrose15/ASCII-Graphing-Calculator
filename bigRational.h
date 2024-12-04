@@ -48,7 +48,7 @@ class BigRational{
 
     public:
 
-    BigRational(const std::string& decimalString); // Ctor to get BigRational from a string eg. 132.10210
+    BigRational(const std::string& decimalString = "0"); // Ctor to get BigRational from a string eg. 132.10210
 
     BigRational(BigNum numer, BigNum denom): numerator{numer}, denominator{denom} {
         reduce(); // Constructor which directly accepts the numerator & denominator

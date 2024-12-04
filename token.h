@@ -13,12 +13,13 @@ enum TokenType{
   COMMA, // ,
   NUM, // Number 
   FNAME, // Function name (user or pre defined)
-  VNAME, // Variable name (user or pre defined)
-  PNAME, // Parameter name
+  VNAME, // Variable name (user or pre defined). Includes constants, parameters.
   PLUS, NEG, // Plus/Minus
   MD, // Divide/Multiply
   EXPON, // Exponentiation
   INEQOP, // Inequality sign: > < >= <=
+
+  // The following are all of the non-terminal token types
   EXPR, // General arithmetic expression
   TERM, FACTOR, POWER, UNSIGNED, // Allow for order of operations, left associativity
   INEQ, // Inequality expression

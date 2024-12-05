@@ -150,3 +150,90 @@ void FormulaList::updateFormula(int index, const string& fullFormula){
   }
 }
 
+BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, const BigRational& varInput, char freeVar){
+  if (std::holds_alternative<unique_ptr<Token>>(tree)){
+    Token* tk = std::get<unique_ptr<Token>>(tree).get();
+    switch(tk->type){
+      case NUM:
+        return BigRational(tk->lexeme);
+      case VNAME:
+        if (string{freeVar} == tk->lexeme) return varInput;
+        else return computeValue(nameIndexMapping[tk->lexeme[0]]);
+      default:
+        throw ComputeError{};
+    }
+  } else{
+    TokenTree* tt = std::get<unique_ptr<TokenTree>>(tree).get();
+    switch(tt->type){
+      case EXPR: case TERM: case FACTOR:
+        if (tt->tree.size() == 1) return computeValueFromTree(tt->tree[0], varInput, freeVar);
+        else {
+          Token* op = std::get<unique_ptr<Token>>(tt->tree[1]).get();
+          BigRational lSide = computeValueFromTree(tt->tree[0], varInput, freeVar);
+          BigRational rSide = computeValueFromTree(tt->tree[2], varInput, freeVar);
+          switch (op->type){
+            case PLUS: return lSide + rSide;
+            case NEG: return rSide + lSide;
+            case MD:
+              if (op->lexeme == "*") return lSide * rSide;
+              else if (op->lexeme == "/") return lSide * rSide;
+            case EXPON: return lSide ^ rSide;
+            default: throw ComputeError{};
+          }
+        }
+      case POWER:
+        if (tt->tree.size() == 1) computeValueFromTree(tt->tree[0], varInput, freeVar);
+        else if (tt->tree.size() == 2){
+          return - computeValueFromTree(tt->tree[1], varInput, freeVar);
+        }
+        else throw ComputeError{};
+      case UNSIGNED:
+        if (tt->tree.size() == 1) computeValueFromTree(tt->tree[0], varInput, freeVar);
+        else if (tt->tree.size() == 3) computeValueFromTree(tt->tree[1], varInput, freeVar);
+        else if (tt->tree.size() == 4){
+          char func = std::get<unique_ptr<Token>>(tt->tree[0]).get()->lexeme[0];
+          return computeValue(nameIndexMapping[func], computeValueFromTree(tt->tree[2], varInput, freeVar));
+        }
+        else throw ComputeError{};
+      case START:
+        return computeValueFromTree(tt->tree[0], varInput, freeVar);
+      default:
+        throw ComputeError{};
+    }
+  }
+}
+
+BigRational FormulaList::computeValue(int index, const BigRational& varInput){
+  if (typeid(*formulaSet[index].get()) == typeid(Constant)){
+    Constant *c = dynamic_cast<Constant*>(formulaSet[index].get());
+    if (c->isUpdated()) return c->getValue();
+    else{
+      BigRational newValue = computeValueFromTree(c->getParseTree());
+      c->updateValue(newValue);
+      return newValue;
+    }
+  } else if (typeid(*formulaSet[index].get()) == typeid(Parameter)){
+    Parameter* p = dynamic_cast<Parameter*>(formulaSet[index].get());
+    if (p->isUpdated()) p->getValue();
+    else{
+      vector<Parser::ParseTree*> subTrees = parser.getComponents(p->getParseTree());
+      if (subTrees.size() == 2 || subTrees.size() == 3){
+        BigRational lBound = computeValueFromTree(*subTrees[0]);
+        BigRational rBound = computeValueFromTree(*subTrees[1]);
+        if (subTrees.size() == 2) p->updateValues(lBound, rBound);
+        else{
+          BigRational speed = computeValueFromTree(*subTrees[2]);
+          p->updateValues(lBound, rBound, speed);
+        }
+      } else throw ComputeError{};
+      return p->getValue();
+    }
+  } else if (typeid(*formulaSet[index].get()) == typeid(Expression)){
+    Expression* exp = dynamic_cast<Expression*>(formulaSet[index].get());
+    return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
+  } else if (typeid(*formulaSet[index].get()) == typeid(Function)){
+    Function* exp = dynamic_cast<Function*>(formulaSet[index].get());
+    return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
+  }
+  throw ComputeError{};
+}

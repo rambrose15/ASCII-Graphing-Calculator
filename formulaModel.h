@@ -6,7 +6,7 @@
 class FormulaModel : public Model{
   public:
     FormulaModel(View* v, Controller* c, FormulaList* f): Model{v,c,f} {}
-    void processCommandSpecific() override;
+    bool processCommandSpecific() override;
 };
 
 #endif

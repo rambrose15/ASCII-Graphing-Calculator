@@ -48,6 +48,8 @@ class Parser{
   public:
 
   ParseTree parseTokens(const std::vector<Token>& tokenSeq);
+
+  std::vector<ParseTree*> getComponents(const ParseTree& pt);
 };
 
 #endif

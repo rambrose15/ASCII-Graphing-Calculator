@@ -3,7 +3,6 @@
 using std::deque, std::pair, std::variant, std::unique_ptr, std::vector, std::string;
 
 Parser::ParseForest Parser::generateParseTree(TokenList structure, const vector<Token>& tokenSeq, size_t head, size_t tail){
-  
   if (structure.empty() || head == tail){
     return ParseForest{structure.empty() && head == tail, vector<ParseTree>{}};
   }
@@ -33,4 +32,15 @@ Parser::ParseTree Parser::parseTokens(const vector<Token>& tokenSeq){
   ParseForest parseTree = generateParseTree(deque<TokenType>{START}, tokenSeq, 0, tokenSeq.size());
   if (!parseTree.first) throw ParseError{};
   return std::move(parseTree.second.front());
+}
+
+vector<Parser::ParseTree*> Parser::getComponents(const ParseTree& pt){
+  vector<ParseTree*> returnVal; 
+  if (std::holds_alternative<unique_ptr<Token>>(pt)) return vector<ParseTree*>{};
+  TokenTree* tt = std::get<unique_ptr<TokenTree>>(pt).get();
+  for (auto iter = tt->tree.begin(); iter != tt->tree.end(); iter++){
+    if (std::holds_alternative<unique_ptr<Token>>(*iter)) continue;
+    returnVal.push_back(&(*iter));
+  }
+  return returnVal;
 }

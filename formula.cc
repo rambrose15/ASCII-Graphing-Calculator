@@ -4,6 +4,9 @@
 #include <utility>
 #include <string>
 #include <cctype>
+#include <chrono>
+#include <ctime>
+#include <math.h>
 
 #include "formula.h"
 #include "bigRational.h"
@@ -11,6 +14,7 @@
 using std::vector, std::set, std::pair, std::map, std::string;
 
 bool Formula::tokenize(const map<char,FormulaType>& varMap, const map<string,FormulaType>& preDefs){
+  tokenList = {};
   // Processes the formulaString into a sequence of tokens
   for (size_t ind = 0, n = formulaString.length(); ind < n; ind++){
     if (isspace(formulaString[ind])) continue;
@@ -89,7 +93,7 @@ bool Formula::tokenize(const map<char,FormulaType>& varMap, const map<string,For
   // Get dependency and parameters list from the newly created token list
   for (Token t : tokenList){
     if (t.type == FNAME || t.type == VNAME){
-      if (preDefs.find(t.lexeme) == preDefs.end()) {
+      if (preDefs.find(t.lexeme) == preDefs.end() && t.lexeme != string{getFreeVar()}) { // If not pre-defined and not the free variable
         dependencies.insert(t.lexeme[0]);
         if (varMap.at(t.lexeme[0]) == PARAMETER) parameters.insert(t.lexeme[0]);
       }
@@ -104,20 +108,31 @@ const Parser::ParseTree& Formula::parse(Parser parser){
   return parseTree;
 }
 
-FormulaError Constant::checkValidity() const {
+const Parser::ParseTree& Formula::getParseTree() { return parseTree; }
+
+FormulaError Constant::checkValidity() {
+  upToDate = false;
   if (!getParameters().empty()) return CONSTANT_VIOLATION;
   return NONE;
 }
 
-FormulaError Parameter::checkValidity() const {
+FormulaError Parameter::checkValidity() {
+  upToDate = false;
   if (!getParameters().empty()) return CONSTANT_VIOLATION;
   return NONE;
 }
 
-FormulaError Expression::checkValidity() const {
+BigRational Parameter::getValue(){
+  if (activeTimer){
+    double elaspedTime = ((std::chrono::system_clock::now() - timeStart).count());
+    return lBound + ((rBound - lBound) * BigRational(std::to_string(fmod(elaspedTime, MAX_INPUT) / MAX_INPUT)));
+  } else return lBound;
+}
+
+FormulaError Expression::checkValidity() {
   return NONE;
 }
 
-FormulaError Function::checkValidity() const {
+FormulaError Function::checkValidity() {
   return NONE;
 }

@@ -1,5 +1,6 @@
 #include "formulaModel.h"
 
-void FormulaModel::processCommandSpecific() {
+bool FormulaModel::processCommandSpecific() {
   // Formula window command interpretations
+  return false;
 }

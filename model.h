@@ -27,11 +27,15 @@ class Model{
     int maxRow, maxCol;
 
     std::string currentCommand;
-    int commandCursorIndex = 0;
+    int commandCursorIndex, commandCursorPosition;
+
 
     void updateCommand(std::variant<char,KeyPress> nextChar);
+    void cleanCommand();
     void processCommandDefault();
-    virtual void processCommandSpecific() = 0;
+    void displayCommandError(std::string message);
+
+    virtual bool processCommandSpecific() = 0;
 
   public:
     Model(View* view, Controller* controller, FormulaList* formulas): 

@@ -1,6 +1,6 @@
 #include "model.h"
 
-using std::pair;
+using std::pair, std::string, std::vector;
 
 void Model::updateScreenDimensions(){
   pair<int,int> newDims = controller->getScreenSize();
@@ -20,62 +20,88 @@ void Model::updateCommand(std::variant<char,KeyPress> input){
         if (commandCursorIndex > 0){
           currentCommand.erase(commandCursorIndex-1, 1);
           commandCursorIndex--;
-          if (currentCommand.length() >= maxCol){
-            view->updateRow(commandRow, currentCommand.substr(currentCommand.length()-maxCol, maxCol));
-          } else view->updateRow(commandRow, currentCommand);
-          view->moveCursor(commandRow, commandCursorIndex);
+          // Case that the tail of the command is not fully on-screen
+          if (maxCol - commandCursorPosition >= currentCommand.length() - commandCursorIndex){
+            if (commandCursorPosition > 0) --commandCursorPosition;
+            //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition, maxCol));
+          } 
+          // Case that the front of the command is not fully on-screen
+          else if (commandCursorIndex > commandCursorPosition){
+            //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition));
+          } 
+          else{ // The normal case
+            --commandCursorPosition;
+            //view->updateRow(commandRow, currentCommand);
+          }
         }
         break;
       case ENTER:
         processCommandDefault();
-        currentCommand = "";
+        currentCommand = " ";
         commandCursorIndex = 0;
+        commandCursorPosition = 0;
         break;
       case LEFTARROW:
+        /*if (commandCursorPosition == 0 && commandCursorIndex > 0){
+          view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-1, maxCol));
+        }*/
+        if (commandCursorPosition > 0) --commandCursorPosition;
         if (commandCursorIndex > 0) --commandCursorIndex;
-        view->moveCursor(commandRow, commandCursorIndex);
         break;
       case RIGHTARROW:
-        if (commandCursorIndex < maxCol && commandCursorIndex < currentCommand.length()){
-          ++commandCursorIndex;
+        if (commandCursorPosition == maxCol-1 && commandCursorIndex < currentCommand.length()-1){
+          //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex - maxCol + 2, maxCol));
         }
-        view->moveCursor(commandRow, commandCursorIndex);
+        if (commandCursorIndex < currentCommand.length()-1){
+          ++commandCursorIndex;
+          if (commandCursorPosition < maxCol-1) ++commandCursorPosition;
+        }
         break;
       default: break;
     }
   } else{
     char newChar = std::get<char>(input);
-    if (commandCursorIndex == currentCommand.length()){
-      currentCommand += newChar;
-      if (commandCursorIndex == maxCol-1){
-        view->updateRow(commandRow, currentCommand.substr(currentCommand.length()-maxCol, maxCol));
-      } else{
-        view->updatePlace(commandRow, commandCursorIndex, newChar);
-        commandCursorIndex++;
-      }
-    } else{
-      currentCommand[commandCursorIndex] = newChar;
-      view->updatePlace(commandRow, commandCursorIndex, newChar);
-      commandCursorIndex++;
-    }
+    currentCommand.insert(currentCommand.begin()+commandCursorIndex, newChar);
+    ++commandCursorIndex;
+    if (commandCursorPosition < maxCol-1) ++commandCursorPosition;
+    //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition));
+  }
+  if (commandMode) {
+    view->updateRow(commandRow, currentCommand.substr(commandCursorIndex - commandCursorPosition));
+    view->moveCursor(commandRow, commandCursorPosition);
   }
 }
 
 void Model::processCommandDefault(){
+  cleanCommand();
   if (currentCommand == "quit" || currentCommand == "q") exitStatus = QUIT;
   else if (currentCommand == "switch") exitStatus = SWITCH;
   else {
-    processCommandSpecific();
+    if (!processCommandSpecific()){
+      displayCommandError("Unrecognized command");
+    }
   }
 }
 
-ExitStatus Model::runModel(){
-  commandCursorIndex = 0;
-  currentCommand = "";
+void Model::cleanCommand(){
+  while (!currentCommand.empty() && currentCommand.back() == ' ') currentCommand.erase(currentCommand.end()-1);
+}
 
+ExitStatus Model::runModel(){
+  // Reset status
+  exitStatus = NOSTATUS;
+
+  // Reset command line variables
+  commandCursorIndex = 0;
+  commandCursorPosition = 0;
+  currentCommand = " ";
+
+  // Reset the screen
   updateScreenDimensions();
   view->wipe();
   view->moveCursor(maxRow-2, commandCursorIndex);
+
+  // Program loop
   while (exitStatus == NOSTATUS){
     updateScreenDimensions();
     if (commandMode){
@@ -84,4 +110,8 @@ ExitStatus Model::runModel(){
     view->loadScreen();
   }
   return exitStatus;
+}
+
+void Model::displayCommandError(string message){
+  view->updateRow(maxRow-1, message, vector<Colour>(message.length(), Colour::RED));
 }

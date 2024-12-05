@@ -1,5 +1,6 @@
 #include "graphingModel.h"
 
-void GraphingModel::processCommandSpecific(){
+bool GraphingModel::processCommandSpecific(){
   // Graphing window specfic commands
+  return false;
 }

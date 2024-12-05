@@ -19,6 +19,7 @@ void GraphingCalculator::configureCurses(){
   keypad(stdscr, TRUE);
   nodelay(stdscr, TRUE);
   start_color();
+  view.initializeColours();
 }
 
 void GraphingCalculator::run(){

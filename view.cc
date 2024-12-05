@@ -5,11 +5,9 @@ using std::string, std::vector;
 void View::moveCursor(int row, int col) { move(row, col); }
 
 void View::updatePlace(int row, int col, char newChar, Colour colour){
-  init_pair(1, colourMapping[colour], COLOR_BLACK);
-  attron(COLOR_PAIR(1));
+  attron(COLOR_PAIR(getColour(colour)));
   mvaddch(row, col, newChar);
-  //mvaddch(row, col, 'X');
-  attroff(COLOR_PAIR(1));
+  attroff(getColour(colour));
 }
 
 void View::updateRow(int row, const std::string& newString, const std::vector<Colour>& colours){
@@ -54,4 +52,30 @@ void View::updateFull(const std::vector<std::string>& newStrings, const std::vec
 
 void View::loadScreen(){
   refresh();
+}
+
+int View::getColour(Colour colour){
+  switch(colour){
+    case WHITE: return 1;
+    case BLACK: return 2;
+    case RED: return 3;
+    case GREEN: return 4;
+    case BLUE: return 5;
+    case YELLOW: return 6;
+    case PURPLE: return 7;
+    case CYAN: return 8;
+    default: return 1;
+  }
+  return 1;
+}
+
+void View::initializeColours(){
+  init_pair(getColour(WHITE), COLOR_WHITE, COLOR_BLACK);
+  init_pair(getColour(BLACK), COLOR_BLACK, COLOR_WHITE);
+  init_pair(getColour(RED), COLOR_RED, COLOR_BLACK);
+  init_pair(getColour(BLUE), COLOR_BLUE, COLOR_BLACK);
+  init_pair(getColour(GREEN), COLOR_GREEN, COLOR_BLACK);
+  init_pair(getColour(YELLOW), COLOR_YELLOW, COLOR_BLACK);
+  init_pair(getColour(CYAN), COLOR_CYAN, COLOR_BLACK);
+  init_pair(getColour(PURPLE), COLOR_MAGENTA, COLOR_BLACK);
 }

@@ -6,7 +6,7 @@
 class GraphingModel : public Model{
   public:
     GraphingModel(View* v, Controller* c, FormulaList* f): Model{v,c,f} {}
-    void processCommandSpecific() override;
+    bool processCommandSpecific() override;
 };
 
 #endif

@@ -82,6 +82,10 @@ class BigRational{
         else return BigRational(denominator ^ (-other.numerator), numerator ^ (-other.numerator));
     }
 
+    bool operator<(const BigRational& other) const{
+        return numerator * other.denominator < other.numerator * denominator;
+    }
+
     bool isNegative() const { return numerator.isNegative() ^ denominator.isNegative(); }
 
     std::string getDecimal() const {

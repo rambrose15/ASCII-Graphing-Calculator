@@ -147,13 +147,13 @@ BigNum BigNum::operator^(const BigNum& other) const{
 }
 
 bool BigNum::operator<(const BigNum& other) const{
-    if (negative ^ other.negative) return !negative;
+    if (negative ^ other.negative) return negative;
     else if (len == other.len){
         for (int ind = len-1; ind >= 0; ind--){
             if (digits[ind] < other.digits[ind]) return !negative;
             else if (digits[ind] > other.digits[ind]) return negative;
         }
-        return negative;      
+        return false;
     }
     else return (len < other.len) ^ negative;
 }

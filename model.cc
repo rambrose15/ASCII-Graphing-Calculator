@@ -1,5 +1,7 @@
 #include "model.h"
 
+#include <sstream>
+
 using std::pair, std::string, std::vector;
 
 void Model::updateScreenDimensions(){
@@ -73,9 +75,25 @@ void Model::updateCommand(std::variant<char,KeyPress> input){
 }
 
 void Model::processCommandDefault(){
-  cleanCommand();
-  if (currentCommand == "quit" || currentCommand == "q") exitStatus = QUIT;
-  else if (currentCommand == "switch") exitStatus = SWITCH;
+  std::stringstream cmdStream(currentCommand);
+  vector<string> cmdWords;
+  string s;
+  while (cmdStream >> s) cmdWords.push_back(s);
+  int wordNum = cmdWords.size();
+  if (wordNum == 1 && (cmdWords[0] == "quit" || cmdWords[0] == "q")) exitStatus = QUIT;
+  else if (wordNum == 1 && (cmdWords[0] == "swap" || cmdWords[0] == "s")) exitStatus = SWITCH;
+  else if (wordNum == 5 && cmdWords[0] == "screencoords"){
+    try{
+        BigRational newXL(cmdWords[1]), newXR = cmdWords[2];
+        BigRational newYL(cmdWords[3]), newYR = cmdWords[4];
+        if (newXL + BigRational("0.001") < newXR && newYL + BigRational("0.001") < newYR){
+          screenDimXL = newXL; screenDimXR = newXR;
+          screenDimYL = newYL; screenDimYR = newYR;
+        } else throw "Incorrect sizes";
+    } catch(...){
+      displayCommandMessage("Invalid set of screen coordinates");
+    }
+  }
   else {
     if (!processCommandSpecific()){
       displayCommandError("Unrecognized command");
@@ -101,12 +119,18 @@ ExitStatus Model::runModel(){
   view->wipe();
   view->moveCursor(maxRow-2, commandCursorIndex);
 
+  // Calls the intiaization specfic to the particular model
+  initializeSpecific();
+
   // Program loop
   while (exitStatus == NOSTATUS){
     updateScreenDimensions();
     if (commandMode){
       updateCommand(controller->getInput());
-    } else exitStatus = QUIT;
+      runInsideCommand();
+    } else {
+      runOutsideCommand();
+    }
     view->loadScreen();
   }
   return exitStatus;
@@ -114,4 +138,8 @@ ExitStatus Model::runModel(){
 
 void Model::displayCommandError(string message){
   view->updateRow(maxRow-1, message, vector<Colour>(message.length(), Colour::RED));
+}
+
+void Model::displayCommandMessage(string message){
+  view->updateRow(maxRow-1, message);
 }

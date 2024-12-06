@@ -65,6 +65,7 @@ void FormulaList::createFormula(int index, const string& fullFormula){
   }
 
   errorStatus[index] = NONE;
+  colourMapping[index] = WHITE;
 
   // Verifies the validity of the prefix and updates name/type based on it
   if (prefix.length() == 1){
@@ -206,7 +207,8 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
 }
 
 BigRational FormulaList::computeValue(int index, const BigRational& varInput){
-  if (typeid(*formulaSet[index].get()) == typeid(Constant)){
+  FormulaType fType = nameTypeMapping[formulaSet[index]->getName()];
+  if (fType == CONSTANT){
     Constant *c = dynamic_cast<Constant*>(formulaSet[index].get());
     if (c->isUpdated()) return c->getValue();
     else{
@@ -214,7 +216,7 @@ BigRational FormulaList::computeValue(int index, const BigRational& varInput){
       c->updateValue(newValue);
       return newValue;
     }
-  } else if (typeid(*formulaSet[index].get()) == typeid(Parameter)){
+  } else if (fType == PARAMETER){
     Parameter* p = dynamic_cast<Parameter*>(formulaSet[index].get());
     if (p->isUpdated()) p->getValue();
     else{
@@ -230,12 +232,72 @@ BigRational FormulaList::computeValue(int index, const BigRational& varInput){
       } else throw ComputeError{};
       return p->getValue();
     }
-  } else if (typeid(*formulaSet[index].get()) == typeid(Expression)){
+  } else if (fType == EXPRESSION){
     Expression* exp = dynamic_cast<Expression*>(formulaSet[index].get());
     return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
-  } else if (typeid(*formulaSet[index].get()) == typeid(Function)){
+  } else if (fType == FUNCTION){
     Function* exp = dynamic_cast<Function*>(formulaSet[index].get());
     return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
   }
   throw ComputeError{};
+}
+
+GraphPackage FormulaList::getGraphs(int rLen, int cLen, BigRational coordXL, BigRational coordXR, 
+  BigRational coordYL, BigRational coordYR){
+    GraphPackage result;
+    for (auto formula = formulaSet.begin(); formula != formulaSet.end(); formula++){
+      FormulaType fType = nameTypeMapping[formula->second->getName()];
+      if (fType != FUNCTION && fType != EXPRESSION) continue;
+      string graph; vector<int> positions;
+      bool xfunc = formula->second->getFreeVar() == 'x';
+      int maxInd = (xfunc ? cLen : rLen);
+      BigRational prevVal;
+      bool validPrev = false;
+      for (int ind = 0; ind <= maxInd; ++ind){
+        BigRational nextVal;
+        bool validNext = true;
+        bool outofBounds = false;
+        try{
+          if (xfunc) nextVal = computeValue(formula->first, 
+            coordXL + ((coordXR - coordXL) * BigRational(std::to_string((double)ind/(double)maxInd))));
+          else nextVal = computeValue(formula->first, 
+            coordYL + ((coordYR - coordYL) * BigRational(std::to_string((double)ind/(double)maxInd))));
+        } catch(ComputeError){
+          validNext = false;
+        }
+        if (validNext){
+          if (xfunc && (nextVal < coordYL || coordYR < nextVal)) outofBounds = true;
+          else if (!xfunc && (nextVal < coordXL || coordXR < nextVal)) outofBounds = true;
+        }
+        int pos = 0; char ch = ' ';
+        int ceilingIndex = (xfunc ? rLen : cLen);
+        if (validPrev && validNext){
+          BigRational halfsq = (xfunc ? coordYR - coordYL : coordXR - coordXL) / BigRational(std::to_string(ceilingIndex*2));
+          for (; pos < ceilingIndex && 
+          (xfunc ? coordYL : coordXL)+(BigRational(std::to_string((pos+1)*2))*halfsq) < prevVal; ++pos);
+          if (prevVal < nextVal){
+            if (nextVal < prevVal + halfsq) ch = '.';
+            else ch = '/';
+          } else{
+            if (prevVal < nextVal + halfsq) ch = '.';
+            else ch = '\\';
+          }
+        }
+        if (ind != 0){
+          graph += ch; positions.push_back(pos);
+        }
+        if (validNext && !outofBounds) prevVal = nextVal;
+        validPrev = validNext && !outofBounds;
+      }
+      if (xfunc) {
+        result.xStrings.push_back(graph);
+        result.xFuncIndices.push_back(formula->first);
+        result.xFuncPositions.push_back(positions);
+      } else {
+        result.yStrings.push_back(graph);
+        result.yFuncIndices.push_back(formula->first);
+        result.yFuncPositions.push_back(positions);
+      }
+    }
+    return result;
 }

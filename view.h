@@ -7,7 +7,7 @@
 #include <ncurses.h>
 
 enum Colour{
-  WHITE, BLACK, RED, GREEN, BLUE, YELLOW, PURPLE, CYAN
+  WHITE, BLACK, RED, GREEN, BLUE, YELLOW, PURPLE, CYAN, NOCOLOUR
 };
 
 class View{

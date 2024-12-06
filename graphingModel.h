@@ -4,9 +4,18 @@
 #include "model.h"
 
 class GraphingModel : public Model{
+  GraphPackage gp;
+  
+  void initializeSpecific() override;
+  void graphFunctions();
+  void updateGP();
+
+  bool processCommandSpecific() override;
+  void runInsideCommand() override;
+  void runOutsideCommand() override;
+
   public:
     GraphingModel(View* v, Controller* c, FormulaList* f): Model{v,c,f} {}
-    bool processCommandSpecific() override;
 };
 
 #endif

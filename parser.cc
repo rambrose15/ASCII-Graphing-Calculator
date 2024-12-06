@@ -14,13 +14,16 @@ Parser::ParseForest Parser::generateParseTree(TokenList structure, const vector<
   }
   else for (auto rule : transformationRules){
     if (rule.first != structure.front()) continue;
-    for (size_t splitPoint = head+rule.second.size(); splitPoint <= tail - structure.size()+1; splitPoint++){
+    for (size_t splitPoint = (structure.size()-1 ? head+rule.second.size() : std::max(head+rule.second.size(),tail)); 
+        splitPoint <= tail - structure.size()+1; splitPoint++){
       ParseForest leftTree = generateParseTree(rule.second, tokenSeq, head, splitPoint);
       if (leftTree.first){
         ParseForest rightTree = generateParseTree(TokenList(structure.begin()+1,structure.end()), tokenSeq, splitPoint, tail);
         if (rightTree.first){
-          leftTree.second.insert(leftTree.second.end(), std::make_move_iterator(rightTree.second.begin()), std::make_move_iterator(rightTree.second.end()));
-          return leftTree;
+          ParseForest fullTree{true, vector<ParseTree>{}};
+          fullTree.second.insert(fullTree.second.end(), unique_ptr<TokenTree>{new TokenTree{structure.front(), std::move(leftTree.second)}});
+          fullTree.second.insert(fullTree.second.end(), std::make_move_iterator(rightTree.second.begin()), std::make_move_iterator(rightTree.second.end()));
+          return fullTree;
         }
       }
     }

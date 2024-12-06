@@ -43,7 +43,7 @@ bool FormulaList::depthFirstSearch(int vertex, map<int,int>& states, vector<int>
   
   states[vertex] = 1;
   for (auto dep : formulaSet[vertex]->getDependencies()){
-    if (!depthFirstSearch(dep, states, sortedList)){
+    if (!depthFirstSearch(nameIndexMapping[dep], states, sortedList)){
       states[vertex] = 3;
       return false;
     }
@@ -106,6 +106,8 @@ void FormulaList::updateFormula(int index, const string& fullFormula){
 
   for (auto iter = formulaSet.begin(); iter != formulaSet.end(); ++iter){
     // Update formula tokenizations with new variable changes
+    if (iter->first == index) continue;
+    errorStatus[iter->first] = NONE; 
     if (errorStatus[iter->first] != PREFIX){
       iter->second->tokenize(nameTypeMapping, preDefs);
     }
@@ -173,10 +175,10 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
           BigRational rSide = computeValueFromTree(tt->tree[2], varInput, freeVar);
           switch (op->type){
             case PLUS: return lSide + rSide;
-            case NEG: return rSide + lSide;
+            case NEG: return lSide - rSide;
             case MD:
               if (op->lexeme == "*") return lSide * rSide;
-              else if (op->lexeme == "/") return lSide * rSide;
+              else if (op->lexeme == "/") return lSide / rSide;
             case EXPON: return lSide ^ rSide;
             default: throw ComputeError{};
           }

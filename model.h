@@ -27,14 +27,14 @@ class Model{
     int maxRow, maxCol;
     BigRational screenDimXL, screenDimXR, screenDimYL, screenDimYR;
 
-    std::string currentCommand;
+    std::string currentCommand, commandMessage;
     int commandCursorIndex, commandCursorPosition;
+    bool commandError;
 
     virtual void runInsideCommand() = 0;
     virtual void runOutsideCommand() = 0;
 
     void updateCommand(std::variant<char,KeyPress> nextChar);
-    void cleanCommand();
     void processCommandDefault();
     void displayCommandError(std::string message);
     void displayCommandMessage(std::string message);
@@ -43,6 +43,7 @@ class Model{
     virtual void initializeSpecific() = 0;
 
     virtual void onColourChange(int index) = 0;
+    virtual void onScreenSizeChange() = 0;
 
   public:
     Model(View* view, Controller* controller, FormulaList* formulas): 

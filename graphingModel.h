@@ -13,7 +13,9 @@ class GraphingModel : public Model{
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;
   void runInsideCommand() override;
   void runOutsideCommand() override;
+
   void onColourChange(int index) override;
+  void onScreenSizeChange() override;
 
   public:
     GraphingModel(View* v, Controller* c, FormulaList* f): Model{v,c,f} {}

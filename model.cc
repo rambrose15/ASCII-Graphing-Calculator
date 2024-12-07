@@ -7,9 +7,17 @@ using std::pair, std::string, std::vector;
 void Model::updateScreenDimensions(){
   pair<int,int> newDims = controller->getScreenSize();
   if (newDims.first != maxRow || newDims.second != maxCol){
-    /* Refresh screen with new dimensions goes here */
     maxRow = newDims.first;
     maxCol = newDims.second;
+
+    // Reset the command
+    updateCommand(NOPRESS);
+    
+    // Reset command message
+    if (commandError) view->updateRow(maxRow-1, commandMessage, vector<Colour>(commandMessage.length(), RED));
+    else view->updateRow(maxRow-1, commandMessage);
+
+    onScreenSizeChange();
   }
 }
 
@@ -80,6 +88,9 @@ void Model::processCommandDefault(){
   string s;
   while (cmdStream >> s) cmdWords.push_back(s);
   int wordNum = cmdWords.size();
+
+  commandMessage = ""; commandError = false;
+
   if (wordNum == 1 && (cmdWords[0] == "quit" || cmdWords[0] == "q")) exitStatus = QUIT;
   else if (wordNum == 1 && (cmdWords[0] == "swap" || cmdWords[0] == "s")) exitStatus = SWITCH;
   else if (wordNum == 5 && cmdWords[0] == "screencoords"){
@@ -114,6 +125,8 @@ void Model::processCommandDefault(){
       displayCommandError("Unrecognized command");
     }
   }
+  if (commandError) view->updateRow(maxRow-1, commandMessage, vector<Colour>(commandMessage.length(), RED));
+  else view->updateRow(maxRow-1, commandMessage);
 }
 
 ExitStatus Model::runModel(){
@@ -124,6 +137,8 @@ ExitStatus Model::runModel(){
   commandCursorIndex = 0;
   commandCursorPosition = 0;
   currentCommand = " ";
+  commandMessage = "";
+  commandError = false;
 
   // Reset the screen
   updateScreenDimensions();
@@ -148,9 +163,11 @@ ExitStatus Model::runModel(){
 }
 
 void Model::displayCommandError(string message){
-  view->updateRow(maxRow-1, message, vector<Colour>(message.length(), Colour::RED));
+  commandMessage = message;
+  commandError = true;
 }
 
 void Model::displayCommandMessage(string message){
-  view->updateRow(maxRow-1, message);
+  commandMessage = message;
+  commandError = false;
 }

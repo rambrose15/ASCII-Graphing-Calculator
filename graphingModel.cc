@@ -22,6 +22,11 @@ void GraphingModel::onColourChange(int index){
   graphFunctions();
 }
 
+void GraphingModel::onScreenSizeChange() {
+  updateGP();
+  graphFunctions();
+}
+
 void GraphingModel::graphFunctions(){
   vector<string> graphScreen(maxRow-2, string(maxCol, ' '));
   vector<vector<Colour>> colourScheme(maxRow-2, vector<Colour>(maxCol, WHITE));

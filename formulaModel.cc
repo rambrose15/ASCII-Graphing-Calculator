@@ -91,6 +91,10 @@ void FormulaModel::onColourChange(int index){
   displayFormulas(selectedFormula);
 }
 
+void FormulaModel::onScreenSizeChange() {
+  displayFormulas(selectedFormula);
+}
+
 void FormulaModel::preLoad(){ // Currently for debugging purposes
   vector<string> strs = {"f(x) = x^2-8"};
   for (int ind = 0, n = strs.size(); ind < n; ind++){
@@ -103,6 +107,7 @@ void FormulaModel::displayFormulas(int startInd){
   for (int ind = startInd; currentLine < maxRow - 3 && ind < 100; ind++){
     currentLine += displaySingleFormula(currentLine, ind);
   }
+  while (currentLine <= maxRow-3) view->updateRow(currentLine++, "");
 }
 
 // Returns the number of lines it used

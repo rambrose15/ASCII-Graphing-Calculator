@@ -15,7 +15,9 @@ class FormulaModel : public Model{
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;
   void runInsideCommand() override {};
   void runOutsideCommand() override;
+
   void onColourChange(int index) override;
+  void onScreenSizeChange() override;
 
   void displayFormulas(int startInd);
   int displaySingleFormula(int line, int index);

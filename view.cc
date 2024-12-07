@@ -79,3 +79,15 @@ void View::initializeColours(){
   init_pair(getColour(CYAN), COLOR_CYAN, COLOR_BLACK);
   init_pair(getColour(PURPLE), COLOR_MAGENTA, COLOR_BLACK);
 }
+
+Colour View::getColourFromString(const string& str){
+  if (str == "w" || str == "white") return WHITE;
+  else if (str == "r" || str == "red") return RED;
+  else if (str == "b" || str == "blue") return BLUE;
+  else if (str == "g" || str == "green") return GREEN;
+  else if (str == "y" || str == "yellow") return YELLOW;
+  else if (str == "c" || str == "cyan") return CYAN;
+  else if (str == "p" || str == "purple") return PURPLE;
+  else if (str == "n" || str == "none") return NOCOLOUR;
+  return BLACK;
+}

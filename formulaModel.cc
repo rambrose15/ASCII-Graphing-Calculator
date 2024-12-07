@@ -17,6 +17,7 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
     displayFormulas(index);
     selectedFormula = index;
     commandMode = false;
+    formulaCursorIndex = stringSet[selectedFormula].length();
     return true;
   }
   return false;
@@ -32,14 +33,16 @@ void FormulaModel::runOutsideCommand(){
           formulaCursorIndex--;
           stringSet[selectedFormula].erase(stringSet[selectedFormula].begin()+formulaCursorIndex);
           // If the change alters the number of lines
-          if (stringSet[selectedFormula].length() > 0 && stringSet[selectedFormula].length() % (maxCol-4) == 0){
+          if (stringSet[selectedFormula].length() > 0 && 
+              stringSet[selectedFormula].length() % (maxCol - FORMULA_BUFFER) == 0){
             displayFormulas(selectedFormula);
           } 
           // If we're not at the very back of the string
           else if (formulaCursorIndex != stringSet[selectedFormula].length()){
             displaySingleFormula(0, selectedFormula);
           } else{
-            view->updatePlace(formulaCursorIndex / (maxCol-4), 4 + (formulaCursorIndex % (maxCol-4)), ' ');
+            view->updatePlace(formulaCursorIndex / (maxCol - FORMULA_BUFFER), 
+              FORMULA_BUFFER + (formulaCursorIndex % (maxCol - FORMULA_BUFFER)), ' ');
           }
         }
         break;
@@ -62,27 +65,33 @@ void FormulaModel::runOutsideCommand(){
     stringSet[selectedFormula].insert(stringSet[selectedFormula].begin()+formulaCursorIndex, newChar);
     formulaCursorIndex++;
     // If the new character changes the number of lines we take up
-    if (stringSet[selectedFormula].length() != 1 && stringSet[selectedFormula].length() % (maxCol-4) == 1){
+    if (stringSet[selectedFormula].length() != 1 && 
+        stringSet[selectedFormula].length() % (maxCol - FORMULA_BUFFER) == 1){
         displayFormulas(selectedFormula);
     }
     // If we're not at the very end of the string
     else if (formulaCursorIndex != stringSet[selectedFormula].length()){
       displaySingleFormula(0, selectedFormula);
     } else{
-      view->updatePlace(formulaCursorIndex / (maxCol-4), 3 + (formulaCursorIndex % (maxCol-4)), newChar);
+      view->updatePlace(formulaCursorIndex / (maxCol - FORMULA_BUFFER), 
+        FORMULA_BUFFER-1 + (formulaCursorIndex % (maxCol - FORMULA_BUFFER)), newChar);
     }
   }
-  view->moveCursor(formulaCursorIndex / (maxCol-4), 
-                  4 + (formulaCursorIndex % (maxCol-4)));
+  view->moveCursor(formulaCursorIndex / (maxCol - FORMULA_BUFFER), 
+                  FORMULA_BUFFER + (formulaCursorIndex % (maxCol - FORMULA_BUFFER)));
 }
 
 void FormulaModel::initializeSpecific() {
-  stringSet = vector<string>(99, "");
-  preLoad();
+  selectedFormula = 1;
+  //preLoad();
   displayFormulas(1);
 }
 
-void FormulaModel::preLoad(){ // Mostly for debugging purposes
+void FormulaModel::onColourChange(int index){
+  displayFormulas(selectedFormula);
+}
+
+void FormulaModel::preLoad(){ // Currently for debugging purposes
   vector<string> strs = {"f(x) = x^2-8"};
   for (int ind = 0, n = strs.size(); ind < n; ind++){
     formulas->updateFormula(ind+1, strs[ind]);
@@ -99,11 +108,13 @@ void FormulaModel::displayFormulas(int startInd){
 // Returns the number of lines it used
 int FormulaModel::displaySingleFormula(int line, int index){
   int currentLine = line;
-  view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index]);
+  view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index], 
+                  vector<Colour>(FORMULA_BUFFER, formulas->getColour(index)));
   currentLine++;
-  int printedIndex = maxCol-4, maxInd = stringSet[index].length();
+  int printedIndex = maxCol - FORMULA_BUFFER, maxInd = stringSet[index].length();
   while (printedIndex < maxInd && currentLine < maxRow-3){
-    view->updateRow(currentLine, string(4,' ') + stringSet[index].substr(printedIndex));
+    view->updateRow(currentLine, string(FORMULA_BUFFER,' ') + stringSet[index].substr(printedIndex));
+    printedIndex += maxCol - FORMULA_BUFFER;
     currentLine++;
   }
   return currentLine - line;

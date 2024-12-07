@@ -12,6 +12,19 @@ bool FormulaList::isValidName(char c){
   return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'); 
 }
 
+Colour FormulaList::getColour(int index) { 
+  if (colourMapping.find(index) != colourMapping.end()) return colourMapping[index];
+  return NOCOLOUR;
+}
+
+bool FormulaList::setColour(int index, Colour newColour){
+  if (colourMapping.find(index) != colourMapping.end()) {
+    colourMapping[index] = newColour;
+    return true;
+  }
+  return false;
+}
+
 vector<int> FormulaList::circularCheck(){
 
   // 0: untouched, 1: in processing, 2: successful, 3: failed

@@ -48,8 +48,9 @@ class FormulaList{
 
   void updateColour(int index, Colour colour) { colourMapping[index] = colour; };
 
-  Colour getColour(int index) { return colourMapping[index]; }
-  
+  Colour getColour(int index);
+  bool setColour(int index, Colour newColour); // Return is whether such an index is valid
+
   FormulaError getErrorStatus(size_t index) { return errorStatus[index]; }
 
   BigRational computeValue(int index, const BigRational& varInput = BigRational("0"));

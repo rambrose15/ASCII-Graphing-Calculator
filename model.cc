@@ -93,6 +93,21 @@ void Model::processCommandDefault(){
     } catch(...){
       displayCommandMessage("Invalid set of screen coordinates");
     }
+  } else if (wordNum == 3 && cmdWords[0] == "colour"){
+    int index;
+    try{ 
+      index = std::stoi(cmdWords[1]); 
+      if (index < 1 || index > 99){
+        displayCommandError("Index not in range 1-99");
+      } else{
+        Colour newColour = view->getColourFromString(cmdWords[2]);
+        if (newColour == BLACK) displayCommandError("Invalid colour name");
+        else{
+          formulas->setColour(index, newColour);
+          onColourChange(index);
+        }
+      }
+    } catch(...) {}
   }
   else {
     if (!processCommandSpecific(cmdWords)){

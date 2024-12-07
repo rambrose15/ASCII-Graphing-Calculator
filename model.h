@@ -42,6 +42,8 @@ class Model{
     virtual bool processCommandSpecific(std::vector<std::string> cmdWords) = 0;
     virtual void initializeSpecific() = 0;
 
+    virtual void onColourChange(int index) = 0;
+
   public:
     Model(View* view, Controller* controller, FormulaList* formulas): 
       view{view}, controller{controller}, formulas{formulas},

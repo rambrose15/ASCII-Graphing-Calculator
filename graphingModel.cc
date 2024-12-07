@@ -13,10 +13,14 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
 }
 
 void GraphingModel::runInsideCommand() {
-  
+
 }
 
 void GraphingModel::runOutsideCommand() {}
+
+void GraphingModel::onColourChange(int index){
+  graphFunctions();
+}
 
 void GraphingModel::graphFunctions(){
   vector<string> graphScreen(maxRow-2, string(maxCol, ' '));

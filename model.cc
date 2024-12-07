@@ -95,14 +95,10 @@ void Model::processCommandDefault(){
     }
   }
   else {
-    if (!processCommandSpecific()){
+    if (!processCommandSpecific(cmdWords)){
       displayCommandError("Unrecognized command");
     }
   }
-}
-
-void Model::cleanCommand(){
-  while (!currentCommand.empty() && currentCommand.back() == ' ') currentCommand.erase(currentCommand.end()-1);
 }
 
 ExitStatus Model::runModel(){

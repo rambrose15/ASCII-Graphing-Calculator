@@ -10,7 +10,7 @@ class GraphingModel : public Model{
   void graphFunctions();
   void updateGP();
 
-  bool processCommandSpecific() override;
+  bool processCommandSpecific(std::vector<std::string> cmdWords) override;
   void runInsideCommand() override;
   void runOutsideCommand() override;
 

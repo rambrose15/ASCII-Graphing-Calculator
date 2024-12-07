@@ -39,7 +39,7 @@ class Model{
     void displayCommandError(std::string message);
     void displayCommandMessage(std::string message);
 
-    virtual bool processCommandSpecific() = 0;
+    virtual bool processCommandSpecific(std::vector<std::string> cmdWords) = 0;
     virtual void initializeSpecific() = 0;
 
   public:

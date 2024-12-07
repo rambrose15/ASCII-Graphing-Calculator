@@ -7,7 +7,7 @@ void GraphingModel::initializeSpecific() {
   graphFunctions();
 }
 
-bool GraphingModel::processCommandSpecific(){
+bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
   // Graphing window specfic commands
   return false;
 }

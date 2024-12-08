@@ -46,6 +46,11 @@ class BigRational{
     
     void reduce();
 
+    BigRational modulo(BigRational num, const BigRational& modder) const;
+    BigRational computeSin(const BigRational& num) const;
+    BigRational computeCos(const BigRational& num) const;
+    BigRational abs() const;
+
     public:
 
     BigRational(const std::string& decimalString = "0"); // Ctor to get BigRational from a string eg. 132.10210
@@ -87,6 +92,10 @@ class BigRational{
     }
 
     bool isNegative() const { return numerator.isNegative() ^ denominator.isNegative(); }
+    
+    BigRational getSin() const;
+    BigRational getCos() const;
+    BigRational getTan() const;
 
     std::string getDecimal() const {
         return numerator.getDecimal() + " | " + denominator.getDecimal();

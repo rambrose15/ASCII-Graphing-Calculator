@@ -30,7 +30,9 @@ class FormulaList{
 
   Parser parser;
   const std::map<std::string,FormulaType> preDefs = 
-    {{"sin", FUNCTION}, {"cos", FUNCTION}, {"tan", FUNCTION}, {"PI", CONSTANT}};
+    {{"sin", FUNCTION}, {"cos", FUNCTION}, {"tan", FUNCTION},
+     {"csc", FUNCTION}, {"sec", FUNCTION}, {"cot", FUNCTION},
+     {"PI", CONSTANT}, {"E", CONSTANT}};
 
   bool isValidName(char c);
 
@@ -39,6 +41,10 @@ class FormulaList{
   bool depthFirstSearch(int vertex, std::map<int,int>& states, std::vector<int>& sortedList);
   
   void createFormula(int index, const std::string& fullFormula);
+
+  BigRational computePredefinedVar(const std::string& name);
+
+  BigRational computePredefinedFunction(const std::string& name, const BigRational& input);
 
   BigRational computeValueFromTree(const Parser::ParseTree& tree, const BigRational& varInput = BigRational("0"), char freeVar = 0);
 

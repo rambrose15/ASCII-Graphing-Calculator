@@ -174,6 +174,7 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
         return BigRational(tk->lexeme);
       case VNAME:
         if (string{freeVar} == tk->lexeme) return varInput;
+        else if (preDefs.find(tk->lexeme) != preDefs.end()) return computePredefinedVar(tk->lexeme);
         else return computeValue(nameIndexMapping[tk->lexeme[0]]);
       default:
         throw ComputeError{};
@@ -193,22 +194,26 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
             case MD:
               if (op->lexeme == "*") return lSide * rSide;
               else if (op->lexeme == "/") return lSide / rSide;
+              else throw ComputeError{};
             case EXPON: return lSide ^ rSide;
             default: throw ComputeError{};
           }
         }
       case POWER:
-        if (tt->tree.size() == 1) computeValueFromTree(tt->tree[0], varInput, freeVar);
+        if (tt->tree.size() == 1) return computeValueFromTree(tt->tree[0], varInput, freeVar);
         else if (tt->tree.size() == 2){
           return - computeValueFromTree(tt->tree[1], varInput, freeVar);
         }
         else throw ComputeError{};
       case UNSIGNED:
-        if (tt->tree.size() == 1) computeValueFromTree(tt->tree[0], varInput, freeVar);
-        else if (tt->tree.size() == 3) computeValueFromTree(tt->tree[1], varInput, freeVar);
+        if (tt->tree.size() == 1) return computeValueFromTree(tt->tree[0], varInput, freeVar);
+        else if (tt->tree.size() == 3) return computeValueFromTree(tt->tree[1], varInput, freeVar);
         else if (tt->tree.size() == 4){
-          char func = std::get<unique_ptr<Token>>(tt->tree[0]).get()->lexeme[0];
-          return computeValue(nameIndexMapping[func], computeValueFromTree(tt->tree[2], varInput, freeVar));
+          string funcName = std::get<unique_ptr<Token>>(tt->tree[0]).get()->lexeme;
+          if (preDefs.find(funcName) != preDefs.end()){
+            return computePredefinedFunction(funcName, computeValueFromTree(tt->tree[2], varInput, freeVar));
+          }
+          else return computeValue(nameIndexMapping[funcName[0]], computeValueFromTree(tt->tree[2], varInput, freeVar));
         }
         else throw ComputeError{};
       case START:
@@ -251,6 +256,32 @@ BigRational FormulaList::computeValue(int index, const BigRational& varInput){
   } else if (fType == FUNCTION){
     Function* exp = dynamic_cast<Function*>(formulaSet[index].get());
     return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
+  }
+  throw ComputeError{};
+}
+
+BigRational FormulaList::computePredefinedVar(const string& name){
+  if (name == "PI"){
+    return BigRational("3.14159");
+  } else if (name == "E"){
+    return BigRational("2.71828");
+  }
+  throw ComputeError{};
+}
+
+BigRational FormulaList::computePredefinedFunction(const string& name, const BigRational& input){
+  if (name == "sin"){
+    return input.getSin();
+  } else if (name == "cos"){
+    return input.getCos();
+  } else if (name == "tan"){
+    return input.getTan();
+  } else if (name == "csc"){
+    return BigRational("1") / input.getSin();
+  } else if (name == "sec"){
+    return BigRational("1") / input.getCos();
+  } else if (name == "cot"){
+    return BigRational("1") / input.getTan();
   }
   throw ComputeError{};
 }

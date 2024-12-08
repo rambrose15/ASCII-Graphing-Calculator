@@ -63,5 +63,6 @@ void GraphingModel::graphFunctions(){
 }
 
 void GraphingModel::updateGP(){
-  gp = formulas->getGraphs(maxRow-2, maxCol, screenDimXL, screenDimXR, screenDimYL, screenDimYR);
+  gp = formulas->getGraphs(maxRow-2, maxCol, 
+    screenInfo->screenDimXL, screenInfo->screenDimXR, screenInfo->screenDimYL, screenInfo->screenDimYR);
 }

@@ -98,11 +98,11 @@ void Model::processCommandDefault(){
         BigRational newXL(cmdWords[1]), newXR = cmdWords[2];
         BigRational newYL(cmdWords[3]), newYR = cmdWords[4];
         if (newXL + BigRational("0.001") < newXR && newYL + BigRational("0.001") < newYR){
-          screenDimXL = newXL; screenDimXR = newXR;
-          screenDimYL = newYL; screenDimYR = newYR;
+          screenInfo->screenDimXL = newXL; screenInfo->screenDimXR = newXR;
+          screenInfo->screenDimYL = newYL; screenInfo->screenDimYR = newYR;
         } else throw "Incorrect sizes";
     } catch(...){
-      displayCommandMessage("Invalid set of screen coordinates");
+      displayCommandError("Invalid set of screen coordinates");
     }
   } else if (wordNum == 3 && cmdWords[0] == "colour"){
     int index;

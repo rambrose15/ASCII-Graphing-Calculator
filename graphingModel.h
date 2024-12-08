@@ -18,7 +18,7 @@ class GraphingModel : public Model{
   void onScreenSizeChange() override;
 
   public:
-    GraphingModel(View* v, Controller* c, FormulaList* f): Model{v,c,f} {}
+    GraphingModel(View* v, Controller* c, FormulaList* f, ScreenInfo* s): Model{v,c,f,s} {}
 };
 
 #endif

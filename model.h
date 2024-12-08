@@ -8,6 +8,7 @@
 #include "view.h"
 #include "controller.h"
 #include "formulaList.h"
+#include "screenInfo.h"
 
 enum ExitStatus{
   NOSTATUS, QUIT, SWITCH
@@ -22,10 +23,10 @@ class Model{
     View* view;
     Controller* controller;
     FormulaList* formulas;
+    ScreenInfo* screenInfo;
     bool commandMode;
 
     int maxRow, maxCol;
-    BigRational screenDimXL, screenDimXR, screenDimYL, screenDimYR;
 
     std::string currentCommand, commandMessage;
     int commandCursorIndex, commandCursorPosition;
@@ -46,11 +47,9 @@ class Model{
     virtual void onScreenSizeChange() = 0;
 
   public:
-    Model(View* view, Controller* controller, FormulaList* formulas): 
+    Model(View* view, Controller* controller, FormulaList* formulas, ScreenInfo* screenInfo): 
       view{view}, controller{controller}, formulas{formulas},
-      commandMode{true}, 
-      screenDimXL{BigRational("-10")}, screenDimXR{BigRational("10")},
-      screenDimYL{BigRational("-10")}, screenDimYR{BigRational("10")} {}
+      screenInfo{screenInfo}, commandMode{true} {}
     ExitStatus runModel();
 };
 

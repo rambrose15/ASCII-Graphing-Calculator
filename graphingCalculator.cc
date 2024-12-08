@@ -2,8 +2,9 @@
 
 GraphingCalculator::GraphingCalculator(): 
   view{}, controller{}, formulas{},
-  formulaModel{&view, &controller, &formulas},
-  graphingModel{&view, &controller, &formulas} {
+  formulaModel{&view, &controller, &formulas, &screenInfo},
+  graphingModel{&view, &controller, &formulas, &screenInfo},
+  screenInfo{} {
     configureCurses();
 }
 

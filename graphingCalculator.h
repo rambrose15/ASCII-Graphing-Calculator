@@ -9,6 +9,7 @@
 #include "formulaList.h"
 #include "formulaModel.h"
 #include "graphingModel.h"
+#include "screenInfo.h"
 
 class GraphingCalculator{
   View view;
@@ -16,6 +17,7 @@ class GraphingCalculator{
   FormulaList formulas;
   FormulaModel formulaModel;
   GraphingModel graphingModel;
+  ScreenInfo screenInfo;
 
   public:
     GraphingCalculator();

@@ -25,7 +25,7 @@ class FormulaModel : public Model{
   void preLoad();
 
   public:
-    FormulaModel(View* v, Controller* c, FormulaList* f): Model{v,c,f}, 
+    FormulaModel(View* v, Controller* c, FormulaList* f, ScreenInfo* s): Model{v,c,f,s}, 
       stringSet{std::vector<std::string>(99,"")}, FORMULA_BUFFER{4} {}
 };
 

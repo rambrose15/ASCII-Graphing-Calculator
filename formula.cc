@@ -9,7 +9,6 @@
 #include <math.h>
 
 #include "formula.h"
-#include "bigRational.h"
 
 using std::vector, std::set, std::pair, std::map, std::string;
 
@@ -109,6 +108,44 @@ const Parser::ParseTree& Formula::parse(Parser parser){
 }
 
 const Parser::ParseTree& Formula::getParseTree() { return parseTree; }
+
+vector<Colour> Formula::getColouring(){
+  vector<Colour> result;
+  vector<int> parens, curls, sqrs;
+  Colour nextColour;
+  for (int ind = 0, n = tokenList.size(); ind < n; ind++){
+    TokenType tt = tokenList[ind].type;
+    switch (tt){
+      case NUM: nextColour = GREEN; break;
+      case VNAME: nextColour = CYAN; break;
+      case FNAME: nextColour = BLUE; break;
+      case PLUS: case NEG: case MD: case EXPON: case INEQOP:
+        nextColour = YELLOW; break;
+      case LPAR: case LSQR: case LCURL:
+        if (tokenList[ind].type == LPAR) parens.push_back(ind);
+        else if (tokenList[ind].type == LSQR) sqrs.push_back(ind);
+        else curls.push_back(ind);
+        nextColour = RED; break;
+      case RPAR: case RSQR: case RCURL:
+        if ((tt==RPAR && parens.empty()) || (tt==RSQR && sqrs.empty()) || (tt==RCURL && curls.empty()))
+          nextColour = RED;
+        else {
+          nextColour = WHITE;
+          if (tt == RPAR) {
+            result[parens.back()] = WHITE; parens.pop_back();
+          } else if (tt == RSQR) {
+            result[sqrs.back()] = WHITE; sqrs.pop_back();
+          } else {
+            result[curls.back()] = WHITE; curls.pop_back();
+          }
+        } break;
+      default: nextColour = WHITE; break;
+    }
+    vector<Colour> nextColours(tokenList[ind].lexeme.length(), nextColour);
+    result.insert(result.end(), nextColours.begin(), nextColours.end());
+  }
+  return result;
+}
 
 FormulaError Constant::checkValidity() {
   upToDate = false;

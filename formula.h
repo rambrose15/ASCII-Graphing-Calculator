@@ -9,6 +9,7 @@
 #include "parser.h"
 #include "formulaError.h"
 #include "bigRational.h"
+#include "colour.h"
 
 enum FormulaType{
   CONSTANT, PARAMETER, EXPRESSION, FUNCTION
@@ -32,6 +33,8 @@ class Formula{
   virtual ~Formula() = default;
 
   virtual char getFreeVar() { return 0; }
+
+  std::vector<Colour> getColouring();
 
   virtual FormulaError checkValidity() = 0;
 

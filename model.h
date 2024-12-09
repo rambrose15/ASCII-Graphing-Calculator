@@ -9,6 +9,7 @@
 #include "controller.h"
 #include "formulaList.h"
 #include "screenInfo.h"
+#include "colour.h"
 
 enum ExitStatus{
   NOSTATUS, QUIT, SWITCH

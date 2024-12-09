@@ -21,8 +21,8 @@ class FormulaModel : public Model{
   void onColourChange(int index) override;
   void onScreenSizeChange() override;
 
-  void displayFormulas(int startInd, bool includeErrors = false);
-  int displaySingleFormula(int line, int index);
+  void displayFormulas(int startInd, bool extras = false);
+  int displaySingleFormula(int line, int index, bool useColours = false);
 
   bool saveToFile(const std::string& fileName);
 

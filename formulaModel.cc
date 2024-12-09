@@ -148,11 +148,11 @@ void FormulaModel::onScreenSizeChange() {
   displayFormulas(selectedFormula);
 }
 
-void FormulaModel::displayFormulas(int startInd, bool includeErrors){
+void FormulaModel::displayFormulas(int startInd, bool extras){
   int currentLine = 0;
   for (int ind = startInd; currentLine < maxRow - 3 && ind < 100; ind++){
-    currentLine += displaySingleFormula(currentLine, ind);
-    if (includeErrors){
+    currentLine += displaySingleFormula(currentLine, ind, extras);
+    if (extras){ // Include error messages and colours
       if (formulas->getErrorStatus(ind) != NONE){
         string errorString = formulaErrorString(formulas->getErrorStatus(ind));
         int maxInd = errorString.length();
@@ -167,14 +167,24 @@ void FormulaModel::displayFormulas(int startInd, bool includeErrors){
 }
 
 // Returns the number of lines it used
-int FormulaModel::displaySingleFormula(int line, int index){
+int FormulaModel::displaySingleFormula(int line, int index, bool useColouring){
   int currentLine = line;
-  view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index], 
-                  vector<Colour>((index < 10 ? 2 : 3), (formulas->getColour(index) == NOCOLOUR ? BLACK : formulas->getColour(index))));
+  vector<Colour> colourScheme((index < 10 ? 2 : 3), (formulas->getColour(index) == NOCOLOUR ? BLACK : formulas->getColour(index)));
+  while (colourScheme.size() < FORMULA_BUFFER) colourScheme.push_back(WHITE);
+  if (useColouring){
+    vector<Colour> colouring = formulas->getFormulaColouring(index);
+    int colouringInd = 0;
+    for (auto c : stringSet[index]){
+      if (isspace(c)) colourScheme.push_back(WHITE);
+      else colourScheme.push_back(colouring[colouringInd++]);
+    }
+  }
+  view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index], colourScheme);
   currentLine++;
   int printedIndex = maxCol - FORMULA_BUFFER, maxInd = stringSet[index].length();
   while (printedIndex < maxInd && currentLine < maxRow-3){
-    view->updateRow(currentLine, string(FORMULA_BUFFER,' ') + stringSet[index].substr(printedIndex));
+    colourScheme.erase(colourScheme.begin()+FORMULA_BUFFER, colourScheme.begin()+maxCol-FORMULA_BUFFER);
+    view->updateRow(currentLine, string(FORMULA_BUFFER,' ') + stringSet[index].substr(printedIndex), colourScheme);
     printedIndex += maxCol - FORMULA_BUFFER;
     currentLine++;
   }
@@ -188,7 +198,7 @@ bool FormulaModel::saveToFile(const string& fileName){
   for (int ind = 1; ind <= 99; ind++){
     if (stringSet[ind] != ""){
       saveFile << ind << ' ' 
-               << view->getStringFromColour(formulas->getColour(ind)) << ' '
+               << getStringFromColour(formulas->getColour(ind)) << ' '
                << stringSet[ind] << '\n';
     }
   }
@@ -221,7 +231,7 @@ bool FormulaModel::loadFromFile(const std::string& fileName){
     int colourInd = lineInd;
     while (lineInd < lineLen && line[lineInd] != ' ') ++lineInd;
     if (lineInd == lineLen) continue;
-    Colour newColour = view->getColourFromString(line.substr(colourInd, lineInd-colourInd));
+    Colour newColour = getColourFromString(line.substr(colourInd, lineInd-colourInd));
     if (newColour == BLACK) continue;
     while (lineInd < lineLen && line[lineInd] == ' ') ++lineInd;
     if (lineInd == lineLen) continue;

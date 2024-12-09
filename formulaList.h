@@ -10,7 +10,7 @@
 #include "parser.h"
 #include "formulaError.h"
 #include "bigRational.h"
-#include "view.h"
+#include "colour.h"
 
 class ComputeError{};
 
@@ -56,6 +56,7 @@ class FormulaList{
 
   Colour getColour(int index);
   bool setColour(int index, Colour newColour); // Return is whether such an index is valid
+  std::vector<Colour> getFormulaColouring(int index);
 
   FormulaError getErrorStatus(int index);
 

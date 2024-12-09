@@ -257,7 +257,3 @@ BigRational BigRational::getSin() const{
 BigRational BigRational::getCos() const{
     return -computeCos(FULLPI - modulo(*this, TWOPI));
 }
-
-BigRational BigRational::getTan() const{
-    return getSin() / getCos();
-}

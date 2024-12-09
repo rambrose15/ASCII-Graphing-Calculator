@@ -95,7 +95,6 @@ class BigRational{
     
     BigRational getSin() const;
     BigRational getCos() const;
-    BigRational getTan() const;
 
     std::string getDecimal() const {
         return numerator.getDecimal() + " | " + denominator.getDecimal();

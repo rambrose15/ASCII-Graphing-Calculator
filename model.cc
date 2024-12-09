@@ -113,7 +113,7 @@ void Model::processCommandDefault(){
       if (index < 1 || index > 99){
         displayCommandError("Index not in range 1-99");
       } else{
-        Colour newColour = view->getColourFromString(cmdWords[2]);
+        Colour newColour = getColourFromString(cmdWords[2]);
         if (newColour == BLACK) displayCommandError("Invalid colour name");
         else{
           formulas->setColour(index, newColour);

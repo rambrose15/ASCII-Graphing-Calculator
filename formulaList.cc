@@ -14,7 +14,7 @@ bool FormulaList::isValidName(char c){
 
 Colour FormulaList::getColour(int index) { 
   if (colourMapping.find(index) != colourMapping.end()) return colourMapping[index];
-  return WHITE;
+  return Colour::WHITE;
 }
 
 bool FormulaList::setColour(int index, Colour newColour){
@@ -23,6 +23,19 @@ bool FormulaList::setColour(int index, Colour newColour){
     return true;
   }
   return false;
+}
+
+vector<Colour> FormulaList::getFormulaColouring(int index){
+  if (formulaSet.find(index) != formulaSet.end() && errorStatus[index] == NONE) {
+    vector<Colour> prefixColouring;
+    if (nameTypeMapping[formulaSet[index]->getName()] == FUNCTION){
+      prefixColouring = {BLUE, WHITE, CYAN, WHITE, YELLOW};
+    } else prefixColouring = {CYAN, YELLOW};
+    vector<Colour> formulaColouring = formulaSet[index]->getColouring();
+    prefixColouring.insert(prefixColouring.end(), formulaColouring.begin(), formulaColouring.end());
+    return prefixColouring;
+  }
+  else return {};
 }
 
 FormulaError FormulaList::getErrorStatus(int index){
@@ -83,7 +96,7 @@ void FormulaList::createFormula(int index, const string& fullFormula){
   }
 
   errorStatus[index] = NONE;
-  colourMapping.insert({index, WHITE});
+  colourMapping.insert({index, Colour::WHITE});
 
   // Verifies the validity of the prefix and updates name/type based on it
   if (prefix.length() == 1){
@@ -121,7 +134,9 @@ void FormulaList::updateFormula(int index, const string& fullFormula){
   nameIndexMapping.erase(index);
   createFormula(index, fullFormula);
   if (errorStatus[index] != NONE) return;
-  formulaSet[index]->tokenize(nameTypeMapping, preDefs);
+  if (!formulaSet[index]->tokenize(nameTypeMapping, preDefs)){
+    errorStatus[index] = TOKENIZATION;
+  }
 
   for (auto iter = formulaSet.begin(); iter != formulaSet.end(); ++iter){
     // Update formula tokenizations with new variable changes
@@ -285,13 +300,13 @@ BigRational FormulaList::computePredefinedFunction(const string& name, const Big
   } else if (name == "cos"){
     return input.getCos();
   } else if (name == "tan"){
-    return input.getTan();
+    return input.getSin() / input.getCos();
   } else if (name == "csc"){
     return BigRational("1") / input.getSin();
   } else if (name == "sec"){
     return BigRational("1") / input.getCos();
   } else if (name == "cot"){
-    return BigRational("1") / input.getTan();
+    return input.getCos() / input.getSin();
   }
   throw ComputeError{};
 }

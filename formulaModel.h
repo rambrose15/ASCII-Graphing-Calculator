@@ -22,9 +22,8 @@ class FormulaModel : public Model{
   void displayFormulas(int startInd, bool includeErrors = false);
   int displaySingleFormula(int line, int index);
 
-  void preLoad();
-
   public:
+  
     FormulaModel(View* v, Controller* c, FormulaList* f, ScreenInfo* s): Model{v,c,f,s}, 
       stringSet{std::vector<std::string>(99,"")}, FORMULA_BUFFER{4} {}
 };

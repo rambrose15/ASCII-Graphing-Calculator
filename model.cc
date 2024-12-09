@@ -92,7 +92,9 @@ void Model::processCommandDefault(){
   commandMessage = ""; commandError = false;
 
   if (wordNum == 1 && (cmdWords[0] == "quit" || cmdWords[0] == "q")) exitStatus = QUIT;
-  else if (wordNum == 1 && (cmdWords[0] == "swap" || cmdWords[0] == "s")) exitStatus = SWITCH;
+  else if (wordNum == 1 && (cmdWords[0] == "swap" || cmdWords[0] == "s" || cmdWords[0] == "switch")) {
+    exitStatus = SWITCH;
+  }
   else if (wordNum == 5 && cmdWords[0] == "screencoords"){
     try{
         BigRational newXL(cmdWords[1]), newXR = cmdWords[2];
@@ -125,6 +127,8 @@ void Model::processCommandDefault(){
       displayCommandError("Unrecognized command");
     }
   }
+  view->updateRow(maxRow-2, ""); // Erase command from command line
+  // Update command message
   if (commandError) view->updateRow(maxRow-1, commandMessage, vector<Colour>(commandMessage.length(), RED));
   else view->updateRow(maxRow-1, commandMessage);
 }

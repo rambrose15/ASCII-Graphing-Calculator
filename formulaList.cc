@@ -25,6 +25,11 @@ bool FormulaList::setColour(int index, Colour newColour){
   return false;
 }
 
+FormulaError FormulaList::getErrorStatus(int index){
+  if (errorStatus.find(index) != errorStatus.end()) return errorStatus[index];
+  return NONE;
+}
+
 vector<int> FormulaList::circularCheck(){
 
   // 0: untouched, 1: in processing, 2: successful, 3: failed
@@ -344,4 +349,12 @@ GraphPackage FormulaList::getGraphs(int rLen, int cLen, BigRational coordXL, Big
       }
     }
     return result;
+}
+
+void FormulaList::clear(){
+  formulaSet.clear();
+  nameIndexMapping.clear();
+  nameTypeMapping.clear();
+  errorStatus.clear();
+  colourMapping.clear();
 }

@@ -57,12 +57,14 @@ class FormulaList{
   Colour getColour(int index);
   bool setColour(int index, Colour newColour); // Return is whether such an index is valid
 
-  FormulaError getErrorStatus(size_t index) { return errorStatus[index]; }
+  FormulaError getErrorStatus(int index);
 
   BigRational computeValue(int index, const BigRational& varInput = BigRational("0"));
 
   GraphPackage getGraphs(int rLen, int cLen, BigRational coordXL, BigRational coordXR, 
     BigRational coordYL, BigRational coordYR);
+
+  void clear();
 };
 
 #endif

@@ -30,6 +30,12 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
     displayFormulas(index, true);
     selectedFormula = index;
     return true;
+  } else if (cmdWords.size() == 1 && cmdWords[0] == "clear"){
+    stringSet = vector<string>(99,"");
+    formulas->clear();
+    displayFormulas(1);
+    displayCommandMessage("Formulas cleared");
+    return true;
   }
   return false;
 }
@@ -95,8 +101,7 @@ void FormulaModel::runOutsideCommand(){
 
 void FormulaModel::initializeSpecific() {
   selectedFormula = 1;
-  //preLoad();
-  displayFormulas(1);
+  displayFormulas(1, true);
 }
 
 void FormulaModel::onColourChange(int index){
@@ -105,13 +110,6 @@ void FormulaModel::onColourChange(int index){
 
 void FormulaModel::onScreenSizeChange() {
   displayFormulas(selectedFormula);
-}
-
-void FormulaModel::preLoad(){ // Currently for debugging purposes
-  vector<string> strs = {"f(x) = x^2-8"};
-  for (int ind = 0, n = strs.size(); ind < n; ind++){
-    formulas->updateFormula(ind+1, strs[ind]);
-  }
 }
 
 void FormulaModel::displayFormulas(int startInd, bool includeErrors){

@@ -19,6 +19,17 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
     commandMode = false;
     formulaCursorIndex = stringSet[selectedFormula].length();
     return true;
+  } else if (cmdWords.size() == 2 && cmdWords[0] == "view"){
+    int index;
+    try{ index = std::stoi(cmdWords[1]); }
+    catch(...) { return false; }
+    if (index < 1 || index > 99){
+      displayCommandError("Index not in range 1-99");
+      return true;
+    }
+    displayFormulas(index, true);
+    selectedFormula = index;
+    return true;
   }
   return false;
 }
@@ -48,6 +59,7 @@ void FormulaModel::runOutsideCommand(){
         break;
       case (ESC): case(ENTER):
         formulas->updateFormula(selectedFormula, stringSet[selectedFormula]);
+        displayFormulas(selectedFormula, true);
         commandMode = true;
         break;
       case(LEFTARROW):
@@ -102,10 +114,20 @@ void FormulaModel::preLoad(){ // Currently for debugging purposes
   }
 }
 
-void FormulaModel::displayFormulas(int startInd){
+void FormulaModel::displayFormulas(int startInd, bool includeErrors){
   int currentLine = 0;
   for (int ind = startInd; currentLine < maxRow - 3 && ind < 100; ind++){
     currentLine += displaySingleFormula(currentLine, ind);
+    if (includeErrors){
+      if (formulas->getErrorStatus(ind) != NONE){
+        string errorString = formulaErrorString(formulas->getErrorStatus(ind));
+        int maxInd = errorString.length();
+        for (int printedIndex = 0; printedIndex < maxInd && currentLine < maxRow - 3; printedIndex += maxCol - FORMULA_BUFFER){
+          view->updateRow(currentLine, errorString.substr(printedIndex), vector<Colour>(maxInd, RED));
+          ++currentLine;
+        }
+      }
+    }
   }
   while (currentLine <= maxRow-3) view->updateRow(currentLine++, "");
 }

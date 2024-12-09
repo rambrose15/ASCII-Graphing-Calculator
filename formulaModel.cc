@@ -5,7 +5,7 @@
 using std::vector,std::string, std::variant;
 
 bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
-  if (cmdWords.size() == 2 && cmdWords[0] == "select"){
+  if (cmdWords.size() == 2 && (cmdWords[0] == "select" || cmdWords[0] == "view")){
     int index;
     try{ 
       index = std::stoi(cmdWords[1]);
@@ -14,21 +14,24 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
       displayCommandError("Index not in range 1-99");
       return true;
     }
-    displayFormulas(index);
+    displayFormulas(index, cmdWords[0] == "view");
     selectedFormula = index;
-    commandMode = false;
-    formulaCursorIndex = stringSet[selectedFormula].length();
+    if (cmdWords[0] == "select"){
+      commandMode = false;
+      formulaCursorIndex = stringSet[selectedFormula].length();
+    } 
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "view"){
+  } else if (cmdWords.size() == 2 && cmdWords[0] == "hide"){
     int index;
-    try{ index = std::stoi(cmdWords[1]); }
-    catch(...) { return false; }
+    try{ 
+      index = std::stoi(cmdWords[1]);
+    } catch(...){ return false; }
     if (index < 1 || index > 99){
       displayCommandError("Index not in range 1-99");
       return true;
     }
-    displayFormulas(index, true);
-    selectedFormula = index;
+    formulas->setColour(index, NOCOLOUR);
+    onColourChange(index);
     return true;
   } else if (cmdWords.size() == 1 && cmdWords[0] == "clear"){
     stringSet = vector<string>(99,"");
@@ -134,7 +137,7 @@ void FormulaModel::displayFormulas(int startInd, bool includeErrors){
 int FormulaModel::displaySingleFormula(int line, int index){
   int currentLine = line;
   view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index], 
-                  vector<Colour>(FORMULA_BUFFER, formulas->getColour(index)));
+                  vector<Colour>((index < 10 ? 2 : 3), (formulas->getColour(index) == NOCOLOUR ? BLACK : formulas->getColour(index))));
   currentLine++;
   int printedIndex = maxCol - FORMULA_BUFFER, maxInd = stringSet[index].length();
   while (printedIndex < maxInd && currentLine < maxRow-3){

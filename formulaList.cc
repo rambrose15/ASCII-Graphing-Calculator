@@ -14,7 +14,7 @@ bool FormulaList::isValidName(char c){
 
 Colour FormulaList::getColour(int index) { 
   if (colourMapping.find(index) != colourMapping.end()) return colourMapping[index];
-  return NOCOLOUR;
+  return WHITE;
 }
 
 bool FormulaList::setColour(int index, Colour newColour){
@@ -83,7 +83,7 @@ void FormulaList::createFormula(int index, const string& fullFormula){
   }
 
   errorStatus[index] = NONE;
-  colourMapping[index] = WHITE;
+  colourMapping.insert({index, WHITE});
 
   // Verifies the validity of the prefix and updates name/type based on it
   if (prefix.length() == 1){
@@ -189,6 +189,11 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
     switch(tt->type){
       case EXPR: case TERM: case FACTOR:
         if (tt->tree.size() == 1) return computeValueFromTree(tt->tree[0], varInput, freeVar);
+        else if (tt->tree.size() == 2){
+          BigRational lSide = computeValueFromTree(tt->tree[0], varInput, freeVar);
+          BigRational rSide = computeValueFromTree(tt->tree[1], varInput, freeVar);
+          return lSide * rSide;
+        }
         else {
           Token* op = std::get<unique_ptr<Token>>(tt->tree[1]).get();
           BigRational lSide = computeValueFromTree(tt->tree[0], varInput, freeVar);

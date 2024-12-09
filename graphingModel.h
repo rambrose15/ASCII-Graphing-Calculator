@@ -2,10 +2,12 @@
 #define __GRAPHING_MODEL_H__
 
 #include "model.h"
+#include <set>
 
 class GraphingModel : public Model{
   GraphPackage gp;
   std::vector<BigRational> vLineSet, hLineSet;
+  std::set<int> hidden;
   
   void initializeSpecific() override;
   void graphFunctions();

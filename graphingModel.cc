@@ -5,6 +5,7 @@ using std::vector, std::pair, std::string;
 void GraphingModel::initializeSpecific() {
   if (vLineSet.empty()) vLineSet.push_back(BigRational("0"));
   if (hLineSet.empty()) hLineSet.push_back(BigRational("0"));
+  hidden.clear();
   updateGP();
   graphFunctions();
 }
@@ -23,6 +24,18 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
   } else if (cmdWords.size() == 1 && cmdWords[0] == "removelines"){
     hLineSet.erase(hLineSet.begin()+1, hLineSet.end());
     vLineSet.erase(vLineSet.begin()+1, vLineSet.end());
+    graphFunctions();
+    return true;
+  } else if (cmdWords.size() == 2 && (cmdWords[0] == "hide" || cmdWords[0] == "show")){
+    int index;
+    try{ index = std::stoi(cmdWords[1]); }
+    catch(...) { return false; }
+    if (index < 1 || index > 99){
+      displayCommandError("Index not in range 1-99");
+      return true;
+    }
+    if (cmdWords[0] == "hide") hidden.insert(index);
+    else hidden.erase(index);
     graphFunctions();
     return true;
   }
@@ -54,6 +67,8 @@ void GraphingModel::graphFunctions(){
   for (int ind = 0, n = gp.xFuncIndices.size(); ind < n; ++ind){
     for (int pos = 0; pos < maxCol; ++pos){
       if (gp.xStrings[ind][pos] == ' ') continue;
+      if (hidden.count(gp.xFuncIndices[ind])) continue;
+      if (formulas->getColour(gp.xFuncIndices[ind]) == NOCOLOUR) continue;
       if (graphScreen[gp.xFuncPositions[ind][pos]][pos] != ' '){
         graphScreen[gp.xFuncPositions[ind][pos]][pos] = '#'; 
         colourScheme[gp.xFuncPositions[ind][pos]][pos] = BLACK;
@@ -67,6 +82,7 @@ void GraphingModel::graphFunctions(){
   for (int ind = 0, n = gp.yFuncIndices.size(); ind < n; ++ind){
     for (int pos = 0; pos < maxRow-2; ++pos){
       if (gp.yStrings[ind][pos] == ' ') continue;
+      if (formulas->getColour(gp.yFuncIndices[ind]) == NOCOLOUR) continue;
       if (graphScreen[pos][gp.yFuncPositions[ind][pos]] != ' '){
         graphScreen[pos][gp.yFuncPositions[ind][pos]] = '#';
         colourScheme[pos][gp.yFuncPositions[ind][pos]] = BLACK;

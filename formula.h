@@ -96,7 +96,7 @@ class Expression : public Formula {
 
   Expression(char name, std::string formulaString): Formula{name, formulaString} {}
 
-  char getFreeVar() override { return getName(); }
+  char getFreeVar() override { return (getName() == 'x' ? 'y' : 'x'); }
   FormulaError checkValidity() override;
 };
 

@@ -5,9 +5,11 @@
 
 class GraphingModel : public Model{
   GraphPackage gp;
+  std::vector<BigRational> vLineSet, hLineSet;
   
   void initializeSpecific() override;
   void graphFunctions();
+  void graphLines(std::vector<std::string>& graphScreen);
   void updateGP();
 
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;

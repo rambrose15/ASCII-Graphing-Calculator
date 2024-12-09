@@ -3,12 +3,29 @@
 using std::vector, std::pair, std::string;
 
 void GraphingModel::initializeSpecific() {
+  if (vLineSet.empty()) vLineSet.push_back(BigRational("0"));
+  if (hLineSet.empty()) hLineSet.push_back(BigRational("0"));
   updateGP();
   graphFunctions();
 }
 
 bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
-  // Graphing window specfic commands
+  if (cmdWords.size() == 2 && cmdWords[0] == "vline"){
+    try{ vLineSet.push_back(BigRational(cmdWords[1])); } 
+    catch(...){ return false; }
+    graphFunctions();
+    return true;
+  } else if (cmdWords.size() == 2 && cmdWords[0] == "hline"){
+    try{ hLineSet.push_back(BigRational(cmdWords[1])); } 
+    catch(...){ return false; }
+    graphFunctions();
+    return true;
+  } else if (cmdWords.size() == 1 && cmdWords[0] == "removelines"){
+    hLineSet.erase(hLineSet.begin()+1, hLineSet.end());
+    vLineSet.erase(vLineSet.begin()+1, vLineSet.end());
+    graphFunctions();
+    return true;
+  }
   return false;
 }
 
@@ -31,6 +48,8 @@ void GraphingModel::graphFunctions(){
   vector<string> graphScreen(maxRow-2, string(maxCol, ' '));
   vector<vector<Colour>> colourScheme(maxRow-2, vector<Colour>(maxCol, WHITE));
   
+  graphLines(graphScreen); // Graphs the h&v lines, which include the axes
+
   // Get the character for the functions of x
   for (int ind = 0, n = gp.xFuncIndices.size(); ind < n; ++ind){
     for (int pos = 0; pos < maxCol; ++pos){
@@ -65,4 +84,24 @@ void GraphingModel::graphFunctions(){
 void GraphingModel::updateGP(){
   gp = formulas->getGraphs(maxRow-2, maxCol, 
     screenInfo->screenDimXL, screenInfo->screenDimXR, screenInfo->screenDimYL, screenInfo->screenDimYR);
+}
+
+void GraphingModel::graphLines(vector<string>& graphScreen){
+  BigRational squareSize = (screenInfo->screenDimXR - screenInfo->screenDimXL) / BigRational(std::to_string(maxCol));
+  for (auto line : vLineSet){
+    if (screenInfo->screenDimXR < line || line < screenInfo->screenDimXL) continue;
+    int charInd = 0;
+    for (BigRational pos = screenInfo->screenDimXL+squareSize; pos < line; pos = pos+squareSize) charInd++;
+    for (int i = 0; i < maxRow-2; i++) graphScreen[i][charInd] = '|';
+  }
+  squareSize = (screenInfo->screenDimYR - screenInfo->screenDimYL) / BigRational(std::to_string(maxRow));
+  for (auto line : hLineSet){
+    if (screenInfo->screenDimYR < line || line < screenInfo->screenDimYL) continue;
+    int charInd = 0;
+    for (BigRational pos = screenInfo->screenDimYL+squareSize; pos < line; pos = pos+squareSize) charInd++;
+    for (int i = 0; i < maxCol; i++) {
+      if (graphScreen[charInd][i] == '|') graphScreen[charInd][i] = '+';
+      else graphScreen[charInd][i] = '-';
+    }
+  }
 }

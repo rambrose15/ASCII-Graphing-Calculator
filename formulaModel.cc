@@ -1,8 +1,11 @@
 #include "formulaModel.h"
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 using std::vector,std::string, std::variant;
+using std::ofstream, std::ifstream;
 
 bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
   if (cmdWords.size() == 2 && (cmdWords[0] == "select" || cmdWords[0] == "view")){
@@ -34,10 +37,40 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
     onColourChange(index);
     return true;
   } else if (cmdWords.size() == 1 && cmdWords[0] == "clear"){
-    stringSet = vector<string>(99,"");
+    stringSet = vector<string>(100,"");
     formulas->clear();
     displayFormulas(1);
     displayCommandMessage("Formulas cleared");
+    return true;
+  } else if (cmdWords.size() == 2 && cmdWords[0] == "saveas"){
+    if (saveToFile(cmdWords[1])){
+      currentFileName = cmdWords[1];
+      displayCommandMessage("Successful save");
+    } else{
+      currentFileName = "";
+      displayCommandError("Unable to save to file");
+    }
+    return true;
+  } else if (cmdWords.size() == 1 && cmdWords[0] == "save"){
+    if (currentFileName == ""){
+      displayCommandError("No file on record");
+    } else{
+      if (saveToFile(currentFileName)) displayCommandMessage("Successful save");
+      else{
+        currentFileName = "";
+        displayCommandError("Unable to save to file");
+      }
+    }
+    return true;
+  } else if (cmdWords.size() == 2 && cmdWords[0] == "load"){
+    if (loadFromFile(cmdWords[1])){
+      currentFileName = cmdWords[1];
+      displayCommandMessage("Successful load");
+      displayFormulas(selectedFormula, true);
+    } else{
+      currentFileName = "";
+      displayCommandError("Unable to load from file");
+    }
     return true;
   }
   return false;
@@ -146,4 +179,58 @@ int FormulaModel::displaySingleFormula(int line, int index){
     currentLine++;
   }
   return currentLine - line;
+}
+
+bool FormulaModel::saveToFile(const string& fileName){
+  ofstream saveFile;
+  saveFile.open(fileName);
+  if (!saveFile.is_open()) return false;
+  for (int ind = 1; ind <= 99; ind++){
+    if (stringSet[ind] != ""){
+      saveFile << ind << ' ' 
+               << view->getStringFromColour(formulas->getColour(ind)) << ' '
+               << stringSet[ind] << '\n';
+    }
+  }
+  saveFile.close();
+  return true;
+}
+
+bool FormulaModel::loadFromFile(const std::string& fileName){
+  ifstream loadFile;
+  loadFile.open(fileName);
+  if (!loadFile.is_open()) return false;
+
+  // Resets state
+  stringSet = vector<string>(100,"");
+  formulas->clear();
+
+  string line;
+  int lineLen;
+  while (getline(loadFile, line)){
+    lineLen = line.length();
+    int lineInd = 0;
+    while (lineInd <lineLen && line[lineInd] != ' ') ++lineInd;
+    if (lineInd == lineLen) continue;
+    int index = -1;
+    try { index = stoi(line.substr(0, lineInd)); }
+    catch(...) {}
+    if (index < 1 || index > 99) continue;
+    while (lineInd < lineLen && line[lineInd] == ' ') ++lineInd;
+    if (lineInd == lineLen) continue;
+    int colourInd = lineInd;
+    while (lineInd < lineLen && line[lineInd] != ' ') ++lineInd;
+    if (lineInd == lineLen) continue;
+    Colour newColour = view->getColourFromString(line.substr(colourInd, lineInd-colourInd));
+    if (newColour == BLACK) continue;
+    while (lineInd < lineLen && line[lineInd] == ' ') ++lineInd;
+    if (lineInd == lineLen) continue;
+    int formulaStart = lineInd;
+    while (lineInd < lineLen && line[lineInd] != '\n') ++lineInd;
+    stringSet[index] = line.substr(formulaStart, lineInd-formulaStart);
+    formulas->updateFormula(index, stringSet[index]);
+    formulas->updateColour(index, newColour);
+  }
+  loadFile.close();
+  return true;
 }

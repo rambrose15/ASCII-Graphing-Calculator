@@ -91,3 +91,17 @@ Colour View::getColourFromString(const string& str){
   else if (str == "n" || str == "none") return NOCOLOUR;
   return BLACK;
 }
+
+string View::getStringFromColour(Colour colour){
+  switch(colour){
+    case WHITE: return "w";
+    case RED: return "r";
+    case BLUE: return "b";
+    case GREEN: return "g";
+    case YELLOW: return "y";
+    case CYAN: return "c";
+    case PURPLE: return "p";
+    case NOCOLOUR: return "n";
+    default: return "";
+  } return "";
+}

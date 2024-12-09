@@ -17,6 +17,7 @@ class View{
   public:
     void initializeColours();
     Colour getColourFromString(const std::string& str);
+    std::string getStringFromColour(Colour colour);
     void moveCursor(int row, int col);
     void updatePlace(int row, int col, char newChar, Colour = WHITE);
     void updateRow(int row, const std::string& newString, const std::vector<Colour>& colours = {});

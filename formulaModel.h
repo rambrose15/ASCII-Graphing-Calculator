@@ -10,6 +10,8 @@ class FormulaModel : public Model{
   int selectedFormula, formulaCursorIndex;
   const int FORMULA_BUFFER;
 
+  std::string currentFileName;
+
   void initializeSpecific() override;
 
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;
@@ -22,10 +24,15 @@ class FormulaModel : public Model{
   void displayFormulas(int startInd, bool includeErrors = false);
   int displaySingleFormula(int line, int index);
 
+  bool saveToFile(const std::string& fileName);
+
+  bool loadFromFile(const std::string& fileName);
+
   public:
   
     FormulaModel(View* v, Controller* c, FormulaList* f, ScreenInfo* s): Model{v,c,f,s}, 
-      stringSet{std::vector<std::string>(99,"")}, FORMULA_BUFFER{4} {}
+      stringSet{std::vector<std::string>(100,"")}, FORMULA_BUFFER{4},
+      currentFileName{""} {}
 };
 
 #endif

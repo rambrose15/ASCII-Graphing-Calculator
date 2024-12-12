@@ -9,28 +9,29 @@ void GraphingModel::initializeSpecific() {
   playing.clear();
   startTime = std::chrono::system_clock::now();
   formulas->resetParams();
-  displayParam = -1;
+  displayValueInd = -1;
   updateGP();
   graphFunctions();
 }
 
 bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
-  if (cmdWords.size() == 2 && cmdWords[0] == "vline"){
+  int wordLen = cmdWords.size();
+  if (wordLen == 2 && cmdWords[0] == "vline"){
     try{ vLineSet.push_back(BigRational(cmdWords[1])); } 
     catch(...){ return false; }
     graphFunctions();
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "hline"){
+  } else if (wordLen == 2 && cmdWords[0] == "hline"){
     try{ hLineSet.push_back(BigRational(cmdWords[1])); } 
     catch(...){ return false; }
     graphFunctions();
     return true;
-  } else if (cmdWords.size() == 1 && cmdWords[0] == "removelines"){
+  } else if (wordLen == 1 && cmdWords[0] == "removelines"){
     hLineSet.erase(hLineSet.begin()+1, hLineSet.end());
     vLineSet.erase(vLineSet.begin()+1, vLineSet.end());
     graphFunctions();
     return true;
-  } else if (cmdWords.size() == 2 && (cmdWords[0] == "hide" || cmdWords[0] == "show")){
+  } else if (wordLen == 2 && (cmdWords[0] == "hide" || cmdWords[0] == "show")){
     int index;
     try{ index = std::stoi(cmdWords[1]); }
     catch(...) { return false; }
@@ -42,8 +43,7 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     else hidden.erase(index);
     graphFunctions();
     return true;
-  } else if (cmdWords.size() >= 1 && (cmdWords[0] == "play" || cmdWords[0] == "stop")){
-    int wordLen = cmdWords.size();
+  } else if (wordLen >= 1 && (cmdWords[0] == "play" || cmdWords[0] == "stop")){
     if (wordLen == 1){
       if (cmdWords[0] == "play") {
         for (int i = 1; i < 100; i++) if (formulas->isParameter(i)) playing.insert(i);
@@ -62,11 +62,11 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     }
     if (someFailed) displayCommandError("Some of the provided indices were invalid");
     return true;
-  } else if (cmdWords.size() >= 1 && cmdWords[0] == "resetparams"){
+  } else if (wordLen >= 1 && cmdWords[0] == "resetparams"){
     formulas->resetParams();
     set<int> specifiedParams;
-    if (cmdWords.size() == 1) for (int i = 1; i < 100; i++) if (formulas->isParameter(i)) specifiedParams.insert(i);
-    for (int ind = 1; ind < cmdWords.size(); ind++){
+    if (wordLen == 1) for (int i = 1; i < 100; i++) if (formulas->isParameter(i)) specifiedParams.insert(i);
+    for (int ind = 1; ind < wordLen; ind++){
       int index = -1;
       try{ index = std::stoi(cmdWords[ind]); }
       catch(...) {}
@@ -75,17 +75,19 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     parameterUpdate(specifiedParams);
     for (auto sp : specifiedParams) if (playing.count(sp)) playing.erase(sp);
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "seeparam"){
+  } else if (wordLen == 2 && cmdWords[0] == "seeparam"){
     int index = -1;
     try { index = stoi(cmdWords[1]); }
     catch(...){ return false; }
     if (index >= 1 && index <= 99 && formulas->isParameter(index)) {
-      displayParam = index;
-      displayCommandMessage(formulas->computeValue(displayParam).getDecimalForm(3));
+      try{ 
+        displayCommandMessage(formulas->computeValue(index).getDecimalForm(3));
+        displayValueInd = index;
+      } catch(ComputeError) { displayCommandError("Unable to compute parameter"); }
     }
     else displayCommandError("Did not recognize index");
     return true;
-  } else if (cmdWords.size() == 3 && cmdWords[0] == "setparam"){
+  } else if (wordLen == 3 && cmdWords[0] == "setparam"){
     int index = -1;
     try { index = stoi(cmdWords[1]); }
     catch(...){ return false; }
@@ -98,6 +100,21 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
       parameterUpdate(set<int>{index});
     } else displayCommandError("Did not recognize index");
     return true;
+  } else if (wordLen == 3 && cmdWords[0] == "eval"){
+    int index = -1;
+    try { index = stoi(cmdWords[1]); }
+    catch(...){ return false; }
+    if (index >= 1 && index <= 99 && formulas->isFunction(index)) {
+      BigRational input;
+      try{ 
+        input = BigRational(cmdWords[2]);
+        displayCommandMessage(formulas->computeValue(index, input).getDecimalForm(3));
+        displayValueInd = index;
+        displayValueInput = input;
+      } catch(...) { displayCommandMessage("Could not compute with provided value"); }
+    }
+    else displayCommandError("Did not recognize index");
+    return true;
   }
   return false;
 }
@@ -109,8 +126,8 @@ void GraphingModel::runInsideCommand() {
       formulas->updateParameters(playing, 1);
       parameterUpdate(playing);
       startTime = std::chrono::system_clock::now();
-      if (displayParam != -1 && playing.count(displayParam)){
-        view->updateRow(maxRow-1, formulas->computeValue(displayParam).getDecimalForm(3));
+      if (displayValueInd != -1){
+        view->updateRow(maxRow-1, formulas->computeValue(displayValueInd, displayValueInput).getDecimalForm(3));
       }
     }
   } else startTime = std::chrono::system_clock::now();
@@ -128,7 +145,7 @@ void GraphingModel::onScreenSizeChange() {
 }
 
 void GraphingModel::onCommandExecute(){
-  displayParam = -1;
+  displayValueInd = -1;
 }
 
 void GraphingModel::graphFunctions(){

@@ -66,6 +66,7 @@ class FormulaList{
   FormulaError getErrorStatus(int index);
 
   bool isParameter(int index);
+  bool isFunction(int index);
 
   BigRational computeValue(int index, const BigRational& varInput = BigRational("0"));
 

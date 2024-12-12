@@ -48,6 +48,11 @@ bool FormulaList::isParameter(int index){
     nameTypeMapping[formulaSet[index]->getName()] == PARAMETER;
 }
 
+bool FormulaList::isFunction(int index){
+  return formulaSet.find(index) != formulaSet.end() &&
+    nameTypeMapping[formulaSet[index]->getName()] == FUNCTION;
+}
+
 vector<int> FormulaList::circularCheck(){
 
   // 0: untouched, 1: in processing, 2: successful, 3: failed

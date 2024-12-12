@@ -11,7 +11,9 @@ class GraphingModel : public Model{
   std::vector<BigRational> vLineSet, hLineSet;
   std::set<int> hidden;
   std::set<int> playing;
-  int displayParam;
+  int displayValueInd;
+  BigRational displayValueInput;
+  inline static const double defaultZoom = 2.0;
 
   std::chrono::system_clock::time_point startTime;
   inline static const double UPDATE_TIME = 1.2;

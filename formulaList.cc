@@ -140,8 +140,14 @@ void FormulaList::createFormula(int index, const string& fullFormula){
 }
 
 void FormulaList::updateFormula(int index, const string& fullFormula){
+  if (formulaSet.find(index) != formulaSet.end()) {
+    nameIndexMapping.erase(formulaSet[index]->getName());
+    nameTypeMapping.erase(formulaSet[index]->getName());
+  }
   formulaSet.erase(index);
-  nameIndexMapping.erase(index);
+  errorStatus.erase(index);
+  colourMapping.erase(index);
+  if (fullFormula.empty()) return;
   createFormula(index, fullFormula);
   if (errorStatus[index] != NONE) return;
   if (!formulaSet[index]->tokenize(nameTypeMapping, preDefs)){

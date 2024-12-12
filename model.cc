@@ -98,12 +98,13 @@ void Model::processCommandDefault(){
   }
   else if (wordNum == 5 && cmdWords[0] == "screencoords"){
     try{
-        BigRational newXL(cmdWords[1]), newXR = cmdWords[2];
-        BigRational newYL(cmdWords[3]), newYR = cmdWords[4];
-        if (newXL + BigRational("0.001") < newXR && newYL + BigRational("0.001") < newYR){
-          screenInfo->screenDimXL = newXL; screenInfo->screenDimXR = newXR;
-          screenInfo->screenDimYL = newYL; screenInfo->screenDimYR = newYR;
-        } else throw "Incorrect sizes";
+      BigRational newXL(cmdWords[1]), newXR = cmdWords[2];
+      BigRational newYL(cmdWords[3]), newYR = cmdWords[4];
+      if (newXL + BigRational("0.001") < newXR && newYL + BigRational("0.001") < newYR){
+        screenInfo->screenDimXL = newXL; screenInfo->screenDimXR = newXR;
+        screenInfo->screenDimYL = newYL; screenInfo->screenDimYR = newYR;
+        onScreenCoordsChange();
+      } else throw "Bad sizes";
     } catch(...){
       displayCommandError("Invalid set of screen coordinates");
     }

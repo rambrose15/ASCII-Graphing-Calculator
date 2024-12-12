@@ -13,7 +13,12 @@ class GraphingModel : public Model{
   std::set<int> playing;
   int displayValueInd;
   BigRational displayValueInput;
-  inline static const double defaultZoom = 2.0;
+
+  inline static const std::string defaultZoom = "2.0";
+  BigRational currentZoom;
+  bool zoomSelectMode, zoomingIn;
+  bool traceMode;
+  int cursorPosX, cursorPosY;
 
   std::chrono::system_clock::time_point startTime;
   inline static const double UPDATE_TIME = 1.2;
@@ -27,9 +32,14 @@ class GraphingModel : public Model{
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;
   void runInsideCommand() override;
   void runOutsideCommand() override;
+  
+  void zoomSelect(KeyPress key);
+  std::pair<BigRational,BigRational> ComputeZoom(const BigRational& lBound, const BigRational& uBound, double pos);
+  void trace(KeyPress key);
 
   void onColourChange(int index) override;
   void onScreenSizeChange() override;
+  void onScreenCoordsChange() override;
   void onCommandExecute() override;
 
   public:

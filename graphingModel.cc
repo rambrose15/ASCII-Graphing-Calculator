@@ -1,6 +1,6 @@
 #include "graphingModel.h"
 
-using std::vector, std::pair, std::string, std::set;
+using std::vector, std::pair, std::string, std::set, std::variant;
 
 void GraphingModel::initializeSpecific() {
   if (vLineSet.empty()) vLineSet.push_back(BigRational("0"));
@@ -10,6 +10,7 @@ void GraphingModel::initializeSpecific() {
   startTime = std::chrono::system_clock::now();
   formulas->resetParams();
   displayValueInd = -1;
+  zoomSelectMode = traceMode = false;
   updateGP();
   graphFunctions();
 }
@@ -30,6 +31,26 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     hLineSet.erase(hLineSet.begin()+1, hLineSet.end());
     vLineSet.erase(vLineSet.begin()+1, vLineSet.end());
     graphFunctions();
+    return true;
+  } else if ((wordLen == 1 || wordLen == 2) && (cmdWords[0] == "zi" || cmdWords[0] == "zo")){
+    zoomingIn = cmdWords[0] == "zi";
+    currentZoom = BigRational(defaultZoom);
+    if (wordLen == 2){
+      try{ 
+        BigRational proposedZoom(cmdWords[1]);
+        if (BigRational("1") < proposedZoom) currentZoom = proposedZoom;
+        else{
+          displayCommandError("Invalid zoom setting");
+          return true;
+        }
+      }
+      catch(...) { return false; }
+    }
+    commandMode = false;
+    zoomSelectMode = true;
+    cursorPosX = maxCol/2;
+    cursorPosY = (maxRow-3)/2;
+    displayCommandMessage("Please select zoom point");
     return true;
   } else if (wordLen == 2 && (cmdWords[0] == "hide" || cmdWords[0] == "show")){
     int index;
@@ -133,13 +154,67 @@ void GraphingModel::runInsideCommand() {
   } else startTime = std::chrono::system_clock::now();
 }
 
-void GraphingModel::runOutsideCommand() {}
+void GraphingModel::runOutsideCommand() {
+  variant<char,KeyPress> input = controller->getInput();
+  if (std::holds_alternative<KeyPress>(input)){
+    KeyPress key = std::get<KeyPress>(input);
+    if (zoomSelectMode) zoomSelect(key);
+    else if (traceMode) trace(key);
+  }
+}
+
+void GraphingModel::zoomSelect(KeyPress key){
+  switch(key){
+    case LEFTARROW:
+      if (cursorPosX > 0) --cursorPosX;
+      break;
+    case RIGHTARROW:
+      if (cursorPosX < maxCol-1) ++cursorPosX;
+      break;
+    case UPARROW:
+      if (cursorPosY > 0) --cursorPosY;
+      break;
+    case DOWNARROW:
+      if (cursorPosY < maxRow-3) ++cursorPosY;
+      break;
+    case ENTER: case ESC: {
+      double xPos = (double)cursorPosX/(double)(maxCol-1);
+      double yPos = 1.0 - (double)cursorPosY/(double)(maxRow-3);
+      pair<BigRational,BigRational> newX = ComputeZoom(screenInfo->screenDimXL, screenInfo->screenDimXR, xPos);
+      pair<BigRational,BigRational> newY = ComputeZoom(screenInfo->screenDimYL, screenInfo->screenDimYR, yPos);
+      if (newX.first + BigRational("0.001") < newX.second && newY.first + BigRational("0.001") < newY.second){
+        screenInfo->screenDimXL = newX.first; screenInfo->screenDimXR = newX.second;
+        screenInfo->screenDimYL = newY.first; screenInfo->screenDimYR = newY.second;
+        onScreenCoordsChange();
+      } else view->updateRow(maxRow-1, "Cannot zoom further", vector<Colour>(21, RED));
+      zoomSelectMode = false;
+      commandMode = true;
+      break;
+    } default: break;
+  }
+  view->moveCursor(cursorPosY, cursorPosX);
+}
+
+pair<BigRational,BigRational> GraphingModel::ComputeZoom(const BigRational& lBound, const BigRational& uBound, double pos){
+  BigRational mid = (uBound - lBound) * BigRational(std::to_string(pos));
+  if (zoomingIn) return {mid + lBound - (mid / currentZoom), mid + lBound + ((uBound - lBound - mid) / currentZoom)};
+  else return {mid + lBound - (mid * currentZoom), mid + lBound + ((uBound - lBound - mid) * currentZoom)};
+}
+
+void GraphingModel::trace(KeyPress key){
+
+}
 
 void GraphingModel::onColourChange(int index){
   graphFunctions();
 }
 
 void GraphingModel::onScreenSizeChange() {
+  updateGP();
+  graphFunctions();
+}
+
+void GraphingModel::onScreenCoordsChange(){
   updateGP();
   graphFunctions();
 }

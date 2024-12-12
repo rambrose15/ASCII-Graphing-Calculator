@@ -1,6 +1,6 @@
 #include "graphingModel.h"
 
-using std::vector, std::pair, std::string;
+using std::vector, std::pair, std::string, std::set;
 
 void GraphingModel::initializeSpecific() {
   if (vLineSet.empty()) vLineSet.push_back(BigRational("0"));
@@ -8,6 +8,7 @@ void GraphingModel::initializeSpecific() {
   hidden.clear();
   playing.clear();
   startTime = std::chrono::system_clock::now();
+  formulas->resetParams();
   updateGP();
   graphFunctions();
 }
@@ -60,6 +61,13 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     }
     if (someFailed) displayCommandError("Some of the provided indices were invalid");
     return true;
+  } else if (cmdWords.size() == 1 && cmdWords[0] == "resetparams"){
+    formulas->resetParams();
+    set<int> allParams;
+    for (int i = 1; i < 100; i++) if (formulas->isParameter(i)) allParams.insert(i);
+    parameterUpdate(allParams);
+    playing.clear();
+    return true;
   }
   return false;
 }
@@ -68,9 +76,8 @@ void GraphingModel::runInsideCommand() {
   if (!playing.empty()){
     std::chrono::duration<double> timeElasped = std::chrono::system_clock::now() - startTime;
     if (timeElasped.count() > UPDATE_TIME){
-      formulas->updateParameterized(maxRow-2, maxCol, screenInfo->screenDimXL, screenInfo->screenDimXR,
-      screenInfo->screenDimYL, screenInfo->screenDimYR, gp, playing, 1);
-      graphFunctions();
+      formulas->updateParameters(playing, 1);
+      parameterUpdate(playing);
       startTime = std::chrono::system_clock::now();
     }
   } else startTime = std::chrono::system_clock::now();
@@ -130,6 +137,12 @@ void GraphingModel::graphFunctions(){
 void GraphingModel::updateGP(){
   gp = formulas->getGraphs(maxRow-2, maxCol, 
     screenInfo->screenDimXL, screenInfo->screenDimXR, screenInfo->screenDimYL, screenInfo->screenDimYR);
+}
+
+void GraphingModel::parameterUpdate(const set<int>& params){
+  formulas->updateParameterized(maxRow-2, maxCol, screenInfo->screenDimXL, screenInfo->screenDimXR,
+      screenInfo->screenDimYL, screenInfo->screenDimYR, gp, params);
+  graphFunctions();
 }
 
 void GraphingModel::graphLines(vector<string>& graphScreen){

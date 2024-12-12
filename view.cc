@@ -37,7 +37,7 @@ void View::updateColumn(int col, const std::string& newString, const std::vector
 void View::wipe(){
   int maxR, maxC;
   getmaxyx(stdscr, maxR, maxC);
-  updateFull(vector(maxR, string(maxC, ' ')));
+  updateFull(vector<string>(maxR, string(maxC, ' ')));
 }
 
 void View::updateFull(const std::vector<std::string>& newStrings, const std::vector<std::vector<Colour>>& colours){

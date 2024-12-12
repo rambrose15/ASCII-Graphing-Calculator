@@ -75,8 +75,12 @@ class FormulaList{
   std::pair<std::string,std::vector<int>> getSingleGraph(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
   const BigRational& coordYL, const BigRational& coordYR, int funcInd);
 
+
+  void updateParameters(const std::set<int>& activeParams, int stepSize);
   void updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
-  const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const std::set<int>& activeParams, int stepSize);
+    const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const std::set<int>& activeParams);
+
+  void resetParams();
 
   void clear();
 };

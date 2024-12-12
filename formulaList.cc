@@ -450,14 +450,17 @@ std::pair<string,vector<int>> FormulaList::getSingleGraph(int rLen, int cLen, co
   return {graph,positions};
 }
 
-void FormulaList::updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
-  const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const set<int>& activeParams, int stepSize){
+void FormulaList::updateParameters(const set<int>& activeParams, int stepSize){
   for (auto p : activeParams){
     if (formulaSet.find(p) == formulaSet.end()) continue;
     Parameter* ptr = dynamic_cast<Parameter*>(formulaSet[p].get());
     if (!ptr) continue;
     ptr->advanceStep(stepSize);
   }
+}
+
+void FormulaList::updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const set<int>& activeParams){
   for (int i = 0; i < 2; i++){
     vector<int> indices = (i ? gp.yFuncIndices : gp.xFuncIndices);
     for (int j = 0, n = indices.size(); j < n; j++){
@@ -479,6 +482,13 @@ void FormulaList::updateParameterized(int rLen, int cLen, const BigRational& coo
         }
       }
     }
+  }
+}
+
+void FormulaList::resetParams(){
+  for (auto iter = formulaSet.begin(); iter != formulaSet.end(); ++iter){
+    Parameter* p = dynamic_cast<Parameter*>(iter->second.get());
+    if (p) p->reset();
   }
 }
 

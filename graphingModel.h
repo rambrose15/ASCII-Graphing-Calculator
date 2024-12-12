@@ -19,6 +19,7 @@ class GraphingModel : public Model{
   void graphFunctions();
   void graphLines(std::vector<std::string>& graphScreen);
   void updateGP();
+  void parameterUpdate(const std::set<int>& params);
 
   bool processCommandSpecific(std::vector<std::string> cmdWords) override;
   void runInsideCommand() override;

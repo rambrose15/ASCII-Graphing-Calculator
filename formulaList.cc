@@ -43,9 +43,19 @@ FormulaError FormulaList::getErrorStatus(int index){
   return NONE;
 }
 
+bool FormulaList::isConstant(int index){
+  return formulaSet.find(index) != formulaSet.end() &&
+    nameTypeMapping[formulaSet[index]->getName()] == CONSTANT;
+}
+
 bool FormulaList::isParameter(int index){
   return formulaSet.find(index) != formulaSet.end() &&
     nameTypeMapping[formulaSet[index]->getName()] == PARAMETER;
+}
+
+bool FormulaList::isExpression(int index){
+  return formulaSet.find(index) != formulaSet.end() &&
+    nameTypeMapping[formulaSet[index]->getName()] == EXPRESSION;
 }
 
 bool FormulaList::isFunction(int index){

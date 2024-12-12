@@ -18,6 +18,7 @@ class GraphingModel : public Model{
   BigRational currentZoom;
   bool zoomSelectMode, zoomingIn;
   bool traceMode;
+  int traceIndex;
   int cursorPosX, cursorPosY;
 
   std::chrono::system_clock::time_point startTime;

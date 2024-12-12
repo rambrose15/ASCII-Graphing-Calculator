@@ -52,6 +52,24 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     cursorPosY = (maxRow-3)/2;
     displayCommandMessage("Please select zoom point");
     return true;
+  } else if (wordLen == 2 && cmdWords[0] == "trace"){
+    int index = 1;
+    try{ index = std::stoi(cmdWords[1]); }
+    catch(...) { return false; }
+    if (index < 1 || index > 99){
+      displayCommandError("Index not in range 1-99");
+      return true;
+    }
+    if (!formulas->isExpression(index) && !formulas->isFunction(index)){
+      displayCommandError("Untraceable formula");
+      return true;
+    }
+    traceIndex = index;
+    traceMode = true;
+    commandMode = false;
+    cursorPosX = cursorPosY = 0;
+    displayCommandMessage("Use arrow keys to trace");
+    return true;
   } else if (wordLen == 2 && (cmdWords[0] == "hide" || cmdWords[0] == "show")){
     int index;
     try{ index = std::stoi(cmdWords[1]); }
@@ -202,7 +220,73 @@ pair<BigRational,BigRational> GraphingModel::ComputeZoom(const BigRational& lBou
 }
 
 void GraphingModel::trace(KeyPress key){
-
+  int gpIndex = -1;
+  for (int i = 0, n = gp.xFuncIndices.size(); i < n; ++i){
+    if (gp.xFuncIndices[i] == traceIndex) {
+      gpIndex = i;
+      break;
+    }
+  } 
+  bool xFunc = gpIndex != -1;
+  if (!xFunc) for(int i = 0, n = gp.yFuncIndices.size(); i < n; ++i){
+    gpIndex = i;
+    break;
+  }
+  if (gpIndex == -1){
+    traceMode = false;
+    commandMode = true;
+    return;
+  }
+  bool change = true;
+  switch(key){
+    case LEFTARROW:
+      if (xFunc && cursorPosX > 0){
+        --cursorPosX;
+        if (gp.xStrings[gpIndex][cursorPosX] != ' '){
+          cursorPosY = maxRow-3 - gp.xFuncPositions[gpIndex][cursorPosX];
+        }
+      } break;
+    case RIGHTARROW:
+      if (xFunc && cursorPosX < maxCol-1){
+        ++cursorPosX;
+        if (gp.xStrings[gpIndex][cursorPosX] != ' '){
+          cursorPosY = maxRow-3 - gp.xFuncPositions[gpIndex][cursorPosX];
+        }
+      } break;
+    case UPARROW:
+      if (!xFunc && cursorPosY > 0){
+        --cursorPosY;
+        if (gp.yStrings[gpIndex][cursorPosY] != ' '){
+          cursorPosX = gp.yFuncPositions[gpIndex][maxRow-3 - cursorPosY];
+        }
+      } break;
+    case DOWNARROW:
+      if (!xFunc && cursorPosY < maxRow-3){
+        ++cursorPosY;
+        if (gp.yStrings[gpIndex][cursorPosY] != ' '){
+          cursorPosX = gp.yFuncPositions[gpIndex][maxRow-3 - cursorPosY];
+        }
+      } break;
+    case ENTER: case ESC:
+      traceMode = false;
+      commandMode = true;
+      view->updateRow(maxRow-1, "Trace complete");
+      break;
+    default: 
+      change = false;
+      break;
+  }
+  if (traceMode && change){
+    BigRational input;
+    if (xFunc) input = (((screenInfo->screenDimXR - screenInfo->screenDimXL) 
+      / BigRational(std::to_string(maxCol-1))) * BigRational(std::to_string(cursorPosX))) 
+      + screenInfo->screenDimXL;
+    else input = (((screenInfo->screenDimYR - screenInfo->screenDimYL) 
+      / BigRational(std::to_string(maxRow-3))) * BigRational(std::to_string(maxRow - 3 - cursorPosY))) 
+      + screenInfo->screenDimYL;
+    view->updateRow(maxRow-1, formulas->computeValue(traceIndex, input).getDecimalForm(3));
+    view->moveCursor(cursorPosY, cursorPosX);
+  }
 }
 
 void GraphingModel::onColourChange(int index){

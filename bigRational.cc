@@ -257,3 +257,14 @@ BigRational BigRational::getSin() const{
 BigRational BigRational::getCos() const{
     return -computeCos(FULLPI - modulo(*this, TWOPI));
 }
+
+string BigRational::getDecimalForm(size_t decimalPrecision) const {
+    BigNum num = numerator * BigNum("1" + string(decimalPrecision, '0'));
+    num.quotient(denominator);
+    string result = num.getDecimal();
+    if (decimalPrecision > 0 && result.length() > decimalPrecision) result.insert(result.end()-decimalPrecision, '.');
+    else if (decimalPrecision > 0 && result.length() <= decimalPrecision) {
+        result = "0." + string(decimalPrecision-result.length(), '0') + result;
+    }
+    return result;
+}

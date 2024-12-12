@@ -81,6 +81,7 @@ class FormulaList{
     const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const std::set<int>& activeParams);
 
   void resetParams();
+  void setParam(int index, const BigRational& newValue);
 
   void clear();
 };

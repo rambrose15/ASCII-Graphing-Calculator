@@ -90,6 +90,7 @@ void Model::processCommandDefault(){
   int wordNum = cmdWords.size();
 
   commandMessage = ""; commandError = false;
+  onCommandExecute();
 
   if (wordNum == 1 && (cmdWords[0] == "quit" || cmdWords[0] == "q")) exitStatus = QUIT;
   else if (wordNum == 1 && (cmdWords[0] == "swap" || cmdWords[0] == "s" || cmdWords[0] == "switch")) {

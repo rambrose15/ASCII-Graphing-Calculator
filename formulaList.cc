@@ -492,6 +492,12 @@ void FormulaList::resetParams(){
   }
 }
 
+void FormulaList::setParam(int index, const BigRational& newValue){
+  if (formulaSet.find(index) == formulaSet.end()) return;
+  Parameter* p = dynamic_cast<Parameter*>(formulaSet[index].get());
+  if (p) p->setValue(newValue);
+}
+
 void FormulaList::clear(){
   formulaSet.clear();
   nameIndexMapping.clear();

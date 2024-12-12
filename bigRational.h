@@ -14,7 +14,6 @@ class BigNum {
     std::vector<int> addUnsigned(const BigNum& other) const;
     std::vector<int> subUnsigned(const BigNum& other) const;
     BigNum modulo(const BigNum& other) const;
-    void quotient(const BigNum& other);
     BigNum abs() const;
     BigNum divideUnsigned(BigNum dividend, const BigNum& divisor, bool quotient) const;
 
@@ -30,7 +29,8 @@ class BigNum {
     BigNum operator-() const;
     BigNum operator*(const BigNum& other) const;
     BigNum operator^(const BigNum& other) const;
-
+    
+    void quotient(const BigNum& other);
     void gcdReduce(BigNum& other);
     private: BigNum findGCD(const BigNum& a, const BigNum& b) const;
     public:
@@ -81,10 +81,11 @@ class BigRational{
         return BigRational{numerator * other.denominator, denominator * other.numerator};
     }
 
-    // Currently only works for integer powers
     BigRational operator^(const BigRational& other) const{ 
-        if (!other.isNegative()) return BigRational(numerator ^ other.numerator, denominator ^ other.numerator);
-        else return BigRational(denominator ^ (-other.numerator), numerator ^ (-other.numerator));
+        BigNum power = other.numerator;
+        power.quotient(other.denominator);
+        if (!power.isNegative()) return BigRational(numerator ^ power, denominator ^ power);
+        else return BigRational(denominator ^ (-power), numerator ^ (-power));
     }
 
     bool operator<(const BigRational& other) const{
@@ -96,9 +97,10 @@ class BigRational{
     BigRational getSin() const;
     BigRational getCos() const;
 
-    std::string getDecimal() const {
+    std::string getRationalForm() const {
         return numerator.getDecimal() + " | " + denominator.getDecimal();
     }
+    std::string getDecimalForm(size_t decimalPrecision) const;
     std::string getNumeratorDecimal() const {
         return numerator.getDecimal();
     }

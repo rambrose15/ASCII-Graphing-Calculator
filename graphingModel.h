@@ -11,9 +11,10 @@ class GraphingModel : public Model{
   std::vector<BigRational> vLineSet, hLineSet;
   std::set<int> hidden;
   std::set<int> playing;
+  int displayParam;
 
   std::chrono::system_clock::time_point startTime;
-  inline static const double UPDATE_TIME = 1.0;
+  inline static const double UPDATE_TIME = 1.2;
   
   void initializeSpecific() override;
   void graphFunctions();
@@ -27,6 +28,7 @@ class GraphingModel : public Model{
 
   void onColourChange(int index) override;
   void onScreenSizeChange() override;
+  void onCommandExecute() override;
 
   public:
     GraphingModel(View* v, Controller* c, FormulaList* f, ScreenInfo* s): Model{v,c,f,s} {}

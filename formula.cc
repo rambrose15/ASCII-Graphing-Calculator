@@ -169,6 +169,11 @@ void Parameter::updateValues(const BigRational& newL, const BigRational& newR, c
   defined = true;
 }
 
+void Parameter::setValue(const BigRational& newValue){
+  currentValue = newValue;
+  upToDate = true;
+}
+
 void Parameter::advanceStep(int stepSize){
   currentStep = (currentStep + stepSize) % MAX_STEP;
   upToDate = false;

@@ -88,6 +88,7 @@ class Parameter : public Formula {
   
   Parameter(char name, std::string formulaString): Formula{name, formulaString} {}
   void updateValues(const BigRational& newL, const BigRational& newR, const BigRational& newSpeed = BigRational("1"));
+  void setValue(const BigRational& newValue);
   bool isDefined() { return defined; }
   BigRational getValue();
   void reset();

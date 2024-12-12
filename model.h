@@ -46,6 +46,7 @@ class Model{
 
     virtual void onColourChange(int index) = 0;
     virtual void onScreenSizeChange() = 0;
+    virtual void onCommandExecute() {};
 
   public:
     Model(View* view, Controller* controller, FormulaList* formulas, ScreenInfo* screenInfo): 

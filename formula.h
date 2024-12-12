@@ -73,22 +73,23 @@ class Constant : public Formula {
 
 class Parameter : public Formula {
   BigRational lBound, rBound, speed;
+  BigRational currentValue;
   std::chrono::time_point<std::chrono::system_clock> timeStart;
-  bool activeTimer = false;
   bool upToDate = false;
-  inline static const double CYCLE_TIME = 10.0;
+  bool defined = false;
+  int currentStep = 0;
+  inline static const int MAX_STEP = 4;
+
+  void computeValue();
 
   public:
   
   Parameter(char name, std::string formulaString): Formula{name, formulaString} {}
-  bool isUpdated() { return upToDate; }
-  void updateValues(const BigRational& newL, const BigRational& newR, const BigRational& newSpeed = BigRational("1")){
-    lBound = newL; rBound = newR; speed = newSpeed;
-    upToDate = true;
-  }
+  void updateValues(const BigRational& newL, const BigRational& newR, const BigRational& newSpeed = BigRational("1"));
+  bool isDefined() { return defined; }
   BigRational getValue();
-  void startTimer() { activeTimer = true; };
-  void stopTimer() { activeTimer = false; };
+  void reset();
+  void advanceStep(int stepSize);
   FormulaError checkValidity() override;
 };
 

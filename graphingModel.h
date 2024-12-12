@@ -3,11 +3,17 @@
 
 #include "model.h"
 #include <set>
+#include <chrono>
+#include <ctime>
 
 class GraphingModel : public Model{
   GraphPackage gp;
   std::vector<BigRational> vLineSet, hLineSet;
   std::set<int> hidden;
+  std::set<int> playing;
+
+  std::chrono::system_clock::time_point startTime;
+  inline static const double UPDATE_TIME = 1.0;
   
   void initializeSpecific() override;
   void graphFunctions();

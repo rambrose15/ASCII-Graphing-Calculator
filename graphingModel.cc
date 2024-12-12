@@ -6,6 +6,8 @@ void GraphingModel::initializeSpecific() {
   if (vLineSet.empty()) vLineSet.push_back(BigRational("0"));
   if (hLineSet.empty()) hLineSet.push_back(BigRational("0"));
   hidden.clear();
+  playing.clear();
+  startTime = std::chrono::system_clock::now();
   updateGP();
   graphFunctions();
 }
@@ -38,12 +40,40 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
     else hidden.erase(index);
     graphFunctions();
     return true;
+  } else if (cmdWords.size() >= 1 && (cmdWords[0] == "play" || cmdWords[0] == "stop")){
+    int wordLen = cmdWords.size();
+    if (wordLen == 1){
+      if (cmdWords[0] == "play") {
+        for (int i = 1; i < 100; i++) if (formulas->isParameter(i)) playing.insert(i);
+      } else playing.clear();
+    }
+    bool someFailed = false;
+    for (int i = 1; i < wordLen; i++){
+      int index = -1;
+      try{ index = std::stoi(cmdWords[i]); }
+      catch(...) { someFailed = true; }
+      if (index < 1 || index > 99) someFailed = true;
+      else{
+        if (cmdWords[0] == "play" && formulas->isParameter(index)) playing.insert(index);
+        else if (cmdWords[0] == "stop" && playing.count(index)) playing.erase(index);
+      }
+    }
+    if (someFailed) displayCommandError("Some of the provided indices were invalid");
+    return true;
   }
   return false;
 }
 
 void GraphingModel::runInsideCommand() {
-
+  if (!playing.empty()){
+    std::chrono::duration<double> timeElasped = std::chrono::system_clock::now() - startTime;
+    if (timeElasped.count() > UPDATE_TIME){
+      formulas->updateParameterized(maxRow-2, maxCol, screenInfo->screenDimXL, screenInfo->screenDimXR,
+      screenInfo->screenDimYL, screenInfo->screenDimYR, gp, playing, 1);
+      graphFunctions();
+      startTime = std::chrono::system_clock::now();
+    }
+  } else startTime = std::chrono::system_clock::now();
 }
 
 void GraphingModel::runOutsideCommand() {}

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <memory>
 #include <variant>
 
@@ -46,6 +47,10 @@ class FormulaList{
 
   BigRational computePredefinedFunction(const std::string& name, const BigRational& input);
 
+  bool computeIneq(const Parser::ParseTree&, const BigRational& varInput, char freeVar);
+
+  bool assessIneq(const BigRational& leftVal, const BigRational& rightVal, Token* op);
+
   BigRational computeValueFromTree(const Parser::ParseTree& tree, const BigRational& varInput = BigRational("0"), char freeVar = 0);
 
   public:
@@ -60,10 +65,18 @@ class FormulaList{
 
   FormulaError getErrorStatus(int index);
 
+  bool isParameter(int index);
+
   BigRational computeValue(int index, const BigRational& varInput = BigRational("0"));
 
-  GraphPackage getGraphs(int rLen, int cLen, BigRational coordXL, BigRational coordXR, 
-    BigRational coordYL, BigRational coordYR);
+  GraphPackage getGraphs(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR);
+
+  std::pair<std::string,std::vector<int>> getSingleGraph(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR, int funcInd);
+
+  void updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const std::set<int>& activeParams, int stepSize);
 
   void clear();
 };

@@ -8,6 +8,7 @@ variant<char,KeyPress> Controller::getInput(){
     case ERR: case KEY_RESIZE: return NOPRESS;
     case KEY_BACKSPACE: case 127: return BACKSPACE;
     case KEY_ENTER: case 10: return ENTER;
+    case 27: return ESC;
     case KEY_UP: return UPARROW;
     case KEY_DOWN: return DOWNARROW;
     case KEY_LEFT: return LEFTARROW;

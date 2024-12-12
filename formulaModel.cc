@@ -141,7 +141,7 @@ void FormulaModel::initializeSpecific() {
 }
 
 void FormulaModel::onColourChange(int index){
-  displayFormulas(selectedFormula);
+  displayFormulas(selectedFormula, true);
 }
 
 void FormulaModel::onScreenSizeChange() {
@@ -173,10 +173,12 @@ int FormulaModel::displaySingleFormula(int line, int index, bool useColouring){
   while (colourScheme.size() < FORMULA_BUFFER) colourScheme.push_back(WHITE);
   if (useColouring){
     vector<Colour> colouring = formulas->getFormulaColouring(index);
-    int colouringInd = 0;
-    for (auto c : stringSet[index]){
-      if (isspace(c)) colourScheme.push_back(WHITE);
-      else colourScheme.push_back(colouring[colouringInd++]);
+    if (!colouring.empty()){
+      int colouringInd = 0;
+      for (auto c : stringSet[index]){
+        if (isspace(c)) colourScheme.push_back(WHITE);
+        else colourScheme.push_back(colouring[colouringInd++]);
+      }
     }
   }
   view->updateRow(currentLine, std::to_string(index) + (index < 10 ? ".  " : ". ") + stringSet[index], colourScheme);

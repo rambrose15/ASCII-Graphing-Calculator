@@ -6,7 +6,7 @@
 
 #include "formulaList.h"
 
-using std::string, std::map, std::unique_ptr, std::vector;
+using std::string, std::map, std::unique_ptr, std::vector, std::set;
 
 bool FormulaList::isValidName(char c){
   return ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'); 
@@ -41,6 +41,11 @@ vector<Colour> FormulaList::getFormulaColouring(int index){
 FormulaError FormulaList::getErrorStatus(int index){
   if (errorStatus.find(index) != errorStatus.end()) return errorStatus[index];
   return NONE;
+}
+
+bool FormulaList::isParameter(int index){
+  return formulaSet.find(index) != formulaSet.end() &&
+    nameTypeMapping[formulaSet[index]->getName()] == PARAMETER;
 }
 
 vector<int> FormulaList::circularCheck(){
@@ -242,6 +247,9 @@ BigRational FormulaList::computeValueFromTree(const Parser::ParseTree& tree, con
         }
         else throw ComputeError{};
       case START:
+        if (tt->tree.size() == 4){ // An inequality is at play
+          if (!computeIneq(tt->tree[2], varInput, freeVar)) throw ComputeError{};
+        }
         return computeValueFromTree(tt->tree[0], varInput, freeVar);
       default:
         throw ComputeError{};
@@ -261,8 +269,7 @@ BigRational FormulaList::computeValue(int index, const BigRational& varInput){
     }
   } else if (fType == PARAMETER){
     Parameter* p = dynamic_cast<Parameter*>(formulaSet[index].get());
-    if (p->isUpdated()) p->getValue();
-    else{
+    if (!p->isDefined()){
       vector<Parser::ParseTree*> subTrees = parser.getComponents(p->getParseTree());
       if (subTrees.size() == 2 || subTrees.size() == 3){
         BigRational lBound = computeValueFromTree(*subTrees[0]);
@@ -273,8 +280,8 @@ BigRational FormulaList::computeValue(int index, const BigRational& varInput){
           p->updateValues(lBound, rBound, speed);
         }
       } else throw ComputeError{};
-      return p->getValue();
     }
+    return p->getValue();
   } else if (fType == EXPRESSION){
     Expression* exp = dynamic_cast<Expression*>(formulaSet[index].get());
     return computeValueFromTree(exp->getParseTree(), varInput, exp->getFreeVar());
@@ -311,8 +318,33 @@ BigRational FormulaList::computePredefinedFunction(const string& name, const Big
   throw ComputeError{};
 }
 
-GraphPackage FormulaList::getGraphs(int rLen, int cLen, BigRational coordXL, BigRational coordXR, 
-  BigRational coordYL, BigRational coordYR){
+bool FormulaList::computeIneq(const Parser::ParseTree& tree, const BigRational& varInput, char freeVar) {
+  if (!std::holds_alternative<unique_ptr<TokenTree>>(tree)) throw ComputeError{};
+  TokenTree* tt = std::get<unique_ptr<TokenTree>>(tree).get();
+  if (tt->type != INEQ) throw ComputeError{};
+  if (!std::holds_alternative<unique_ptr<Token>>(tt->tree[1])) throw ComputeError{};
+  BigRational leftValue = computeValueFromTree(tt->tree[0], varInput, freeVar);
+  BigRational middleValue = computeValueFromTree(tt->tree[2], varInput, freeVar);
+  if (!assessIneq(leftValue, middleValue, std::get<unique_ptr<Token>>(tt->tree[1]).get())) return false;
+  if (tt->tree.size() == 5){
+    if (!std::holds_alternative<unique_ptr<Token>>(tt->tree[3])) throw ComputeError{};
+    BigRational rightValue = computeValueFromTree(tt->tree[4], varInput, freeVar);
+    if (!assessIneq(middleValue, rightValue, std::get<unique_ptr<Token>>(tt->tree[3]).get())) return false;
+  }
+  return true;
+}
+
+bool FormulaList::assessIneq(const BigRational& leftVal, const BigRational& rightVal, Token* op){
+  if (op->type != INEQOP) throw ComputeError{};
+  if (op->lexeme == "<") return leftVal < rightVal;
+  else if (op->lexeme == ">") return rightVal < leftVal;
+  else if (op->lexeme == "<=") return !(rightVal < leftVal);
+  else if (op->lexeme == ">=") return !(leftVal < rightVal);
+  return false;
+}
+
+GraphPackage FormulaList::getGraphs(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR){
     GraphPackage result;
     for (auto formula = formulaSet.begin(); formula != formulaSet.end(); formula++){
       FormulaType fType = nameTypeMapping[formula->second->getName()];
@@ -369,6 +401,85 @@ GraphPackage FormulaList::getGraphs(int rLen, int cLen, BigRational coordXL, Big
       }
     }
     return result;
+}
+
+std::pair<string,vector<int>> FormulaList::getSingleGraph(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR, int formulaInd){
+  Formula* formula = formulaSet[formulaInd].get();
+  string graph; vector<int> positions;
+  bool xfunc = formula->getFreeVar() == 'x';
+  int maxInd = (xfunc ? cLen : rLen);
+  BigRational prevVal;
+  bool validPrev = false;
+  for (int ind = 0; ind <= maxInd; ++ind){
+    BigRational nextVal;
+    bool validNext = true;
+    bool outofBounds = false;
+    try{
+      if (xfunc) nextVal = computeValue(formulaInd, 
+        coordXL + ((coordXR - coordXL) * BigRational(std::to_string((double)ind/(double)maxInd))));
+      else nextVal = computeValue(formulaInd, 
+        coordYL + ((coordYR - coordYL) * BigRational(std::to_string((double)ind/(double)maxInd))));
+    } catch(ComputeError){
+      validNext = false;
+    }
+    if (validNext){
+      if (xfunc && (nextVal < coordYL || coordYR < nextVal)) outofBounds = true;
+      else if (!xfunc && (nextVal < coordXL || coordXR < nextVal)) outofBounds = true;
+    }
+    int pos = 0; char ch = ' ';
+    int ceilingIndex = (xfunc ? rLen : cLen);
+    if (validPrev && validNext){
+      BigRational halfsq = (xfunc ? coordYR - coordYL : coordXR - coordXL) / BigRational(std::to_string(ceilingIndex*2));
+      for (; pos < ceilingIndex && 
+      (xfunc ? coordYL : coordXL)+(BigRational(std::to_string((pos+1)*2))*halfsq) < prevVal; ++pos);
+      if (prevVal < nextVal){
+        if (nextVal < prevVal + halfsq) ch = '.';
+        else ch = '/';
+      } else{
+        if (prevVal < nextVal + halfsq) ch = '.';
+        else ch = '\\';
+      }
+    }
+    if (ind != 0){
+      graph += ch; positions.push_back(pos);
+    }
+    if (validNext && !outofBounds) prevVal = nextVal;
+    validPrev = validNext && !outofBounds;
+  }
+  return {graph,positions};
+}
+
+void FormulaList::updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+  const BigRational& coordYL, const BigRational& coordYR, GraphPackage& gp, const set<int>& activeParams, int stepSize){
+  for (auto p : activeParams){
+    if (formulaSet.find(p) == formulaSet.end()) continue;
+    Parameter* ptr = dynamic_cast<Parameter*>(formulaSet[p].get());
+    if (!ptr) continue;
+    ptr->advanceStep(stepSize);
+  }
+  for (int i = 0; i < 2; i++){
+    vector<int> indices = (i ? gp.yFuncIndices : gp.xFuncIndices);
+    for (int j = 0, n = indices.size(); j < n; j++){
+      bool needsUpdate = false;
+      for (char p : formulaSet[indices[j]]->getParameters()){
+        if (activeParams.count(nameIndexMapping[p])){
+          needsUpdate = true;
+          break;
+        }
+      }
+      if (needsUpdate){
+        std::pair<string,vector<int>> newGraph = getSingleGraph(rLen, cLen, coordXL, coordXR, coordYL, coordYR, indices[j]);
+        if (i == 0) {
+          gp.xStrings[j] = newGraph.first;
+          gp.xFuncPositions[j] = newGraph.second;
+        } else{
+          gp.yStrings[j] = newGraph.first;
+          gp.yFuncPositions[j] = newGraph.second;
+        }
+      }
+    }
+  }
 }
 
 void FormulaList::clear(){

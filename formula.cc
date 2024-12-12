@@ -154,16 +154,37 @@ FormulaError Constant::checkValidity() {
 }
 
 FormulaError Parameter::checkValidity() {
+  defined = false;
   upToDate = false;
-  if (!getParameters().empty()) return CONSTANT_VIOLATION;
+  if (!getParameters().empty()) return PARAMETER_VIOLATION;
   return NONE;
 }
 
-BigRational Parameter::getValue(){
-  if (activeTimer){
-    double elaspedTime = ((std::chrono::system_clock::now() - timeStart).count());
-    return lBound + ((rBound - lBound) * BigRational(std::to_string(fmod(elaspedTime, MAX_INPUT) / MAX_INPUT)));
-  } else return lBound;
+BigRational Parameter::getValue(){ 
+  if (!upToDate) computeValue();
+  return currentValue;
+}
+
+void Parameter::updateValues(const BigRational& newL, const BigRational& newR, const BigRational& newSpeed){
+  lBound = newL; rBound = newR; speed = newSpeed;
+  upToDate = false;
+  defined = true;
+}
+
+void Parameter::advanceStep(int stepSize){
+  currentStep = (currentStep + stepSize) % MAX_STEP;
+  upToDate = false;
+}
+
+void Parameter::computeValue(){
+  currentValue = lBound + ((rBound - lBound) * BigRational(std::to_string((double)currentStep / (double)MAX_STEP)));
+  upToDate = true;
+}
+
+void Parameter::reset(){
+  currentStep = 0;
+  currentValue = lBound;
+  upToDate = true;
 }
 
 FormulaError Expression::checkValidity() {

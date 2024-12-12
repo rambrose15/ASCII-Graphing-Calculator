@@ -23,6 +23,7 @@ class GraphingCalculator{
     GraphingCalculator();
     ~GraphingCalculator();
     void configureCurses();
+    void loadBeforeRun(std::string fileName);
     void run();
 };
 

@@ -24,6 +24,10 @@ void GraphingCalculator::configureCurses(){
   view.initializeColours();
 }
 
+void GraphingCalculator::loadBeforeRun(std::string fileName){
+  formulaModel.loadFromFile(fileName);
+}
+
 void GraphingCalculator::run(){
   ExitStatus status = NOSTATUS;
   while (status != QUIT){

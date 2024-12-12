@@ -8,7 +8,8 @@ using std::vector,std::string, std::variant;
 using std::ofstream, std::ifstream;
 
 bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
-  if (cmdWords.size() == 2 && (cmdWords[0] == "select" || cmdWords[0] == "view")){
+  int wordLen = cmdWords.size();
+  if (wordLen == 2 && (cmdWords[0] == "select" || cmdWords[0] == "view")){
     int index;
     try{ 
       index = std::stoi(cmdWords[1]);
@@ -24,7 +25,7 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
       formulaCursorIndex = stringSet[selectedFormula].length();
     } 
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "hide"){
+  } else if (wordLen == 2 && cmdWords[0] == "hide"){
     int index;
     try{ 
       index = std::stoi(cmdWords[1]);
@@ -36,13 +37,13 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
     formulas->setColour(index, NOCOLOUR);
     onColourChange(index);
     return true;
-  } else if (cmdWords.size() == 1 && cmdWords[0] == "clear"){
+  } else if (wordLen == 1 && cmdWords[0] == "clear"){
     stringSet = vector<string>(100,"");
     formulas->clear();
     displayFormulas(1);
     displayCommandMessage("Formulas cleared");
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "saveas"){
+  } else if (wordLen == 2 && cmdWords[0] == "saveas"){
     if (saveToFile(cmdWords[1])){
       currentFileName = cmdWords[1];
       displayCommandMessage("Successful save");
@@ -51,7 +52,7 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
       displayCommandError("Unable to save to file");
     }
     return true;
-  } else if (cmdWords.size() == 1 && cmdWords[0] == "save"){
+  } else if (wordLen == 1 && cmdWords[0] == "save"){
     if (currentFileName == ""){
       displayCommandError("No file on record");
     } else{
@@ -62,7 +63,7 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
       }
     }
     return true;
-  } else if (cmdWords.size() == 2 && cmdWords[0] == "load"){
+  } else if (wordLen == 2 && cmdWords[0] == "load"){
     if (loadFromFile(cmdWords[1])){
       currentFileName = cmdWords[1];
       displayCommandMessage("Successful load");
@@ -71,6 +72,10 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
       currentFileName = "";
       displayCommandError("Unable to load from file");
     }
+    return true;
+  } else if (wordLen == 1 && cmdWords[0] == "new"){
+    currentFileName = "";
+    displayCommandMessage("File history erased");
     return true;
   }
   return false;

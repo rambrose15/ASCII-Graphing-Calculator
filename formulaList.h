@@ -51,13 +51,14 @@ class FormulaList{
 
   bool assessIneq(const BigRational& leftVal, const BigRational& rightVal, Token* op);
 
+  std::pair<std::string,std::vector<int>> getSingleGraph(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
+    const BigRational& coordYL, const BigRational& coordYR, int funcInd);
+
   BigRational computeValueFromTree(const Parser::ParseTree& tree, const BigRational& varInput = BigRational("0"), char freeVar = 0);
 
   public:
 
   void updateFormula(int index, const std::string& fullFormula);
-
-  void updateColour(int index, Colour colour) { colourMapping[index] = colour; };
 
   Colour getColour(int index);
   bool setColour(int index, Colour newColour); // Return is whether such an index is valid
@@ -74,10 +75,6 @@ class FormulaList{
 
   GraphPackage getGraphs(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
   const BigRational& coordYL, const BigRational& coordYR);
-
-  std::pair<std::string,std::vector<int>> getSingleGraph(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 
-  const BigRational& coordYL, const BigRational& coordYR, int funcInd);
-
 
   void updateParameters(const std::set<int>& activeParams, int stepSize);
   void updateParameterized(int rLen, int cLen, const BigRational& coordXL, const BigRational& coordXR, 

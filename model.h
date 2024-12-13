@@ -50,10 +50,12 @@ class Model{
     virtual void onCommandExecute() {}
 
   public:
-    Model(View* view, Controller* controller, FormulaList* formulas, ScreenInfo* screenInfo): 
-      view{view}, controller{controller}, formulas{formulas},
-      screenInfo{screenInfo}, commandMode{true} {}
-    ExitStatus runModel();
+
+  Model(View* view, Controller* controller, FormulaList* formulas, ScreenInfo* screenInfo): 
+    view{view}, controller{controller}, formulas{formulas},
+    screenInfo{screenInfo}, commandMode{true} {}
+
+  ExitStatus runModel();
 };
 
 #endif

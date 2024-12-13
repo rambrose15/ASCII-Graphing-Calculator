@@ -246,7 +246,7 @@ bool FormulaModel::loadFromFile(const std::string& fileName){
     while (lineInd < lineLen && line[lineInd] != '\n') ++lineInd;
     stringSet[index] = line.substr(formulaStart, lineInd-formulaStart);
     formulas->updateFormula(index, stringSet[index]);
-    formulas->updateColour(index, newColour);
+    formulas->setColour(index, newColour);
   }
   loadFile.close();
   return true;

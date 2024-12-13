@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <set>
 
 #include "token.h"
 
@@ -18,8 +19,11 @@ class Parser{
   using ParseTree = std::variant<std::unique_ptr<TokenTree>,std::unique_ptr<Token>>;
   using ParseForest = std::pair<bool, std::vector<ParseTree>>;
   using TokenList = std::deque<TokenType>;
-  
+
   private:
+
+  std::set<std::pair<TokenList,std::pair<size_t,size_t>>> memo;
+
   const std::vector<std::pair<TokenType,TokenList>> transformationRules = {
     { START, TokenList{ EXPR }},
     { START, TokenList{ EXPR, LCURL, INEQ, RCURL }},

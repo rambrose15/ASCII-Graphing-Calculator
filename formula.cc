@@ -122,9 +122,9 @@ vector<Colour> Formula::getColouring(){
       case PLUS: case NEG: case MD: case EXPON: case INEQOP:
         nextColour = YELLOW; break;
       case LPAR: case LSQR: case LCURL:
-        if (tokenList[ind].type == LPAR) parens.push_back(ind);
-        else if (tokenList[ind].type == LSQR) sqrs.push_back(ind);
-        else curls.push_back(ind);
+        if (tokenList[ind].type == LPAR) parens.push_back(result.size());
+        else if (tokenList[ind].type == LSQR) sqrs.push_back(result.size());
+        else curls.push_back(result.size());
         nextColour = RED; break;
       case RPAR: case RSQR: case RCURL:
         if ((tt==RPAR && parens.empty()) || (tt==RSQR && sqrs.empty()) || (tt==RCURL && curls.empty()))

@@ -110,6 +110,8 @@ const Parser::ParseTree& Formula::getParseTree() { return parseTree; }
 vector<Colour> Formula::getColouring(){
   vector<Colour> result;
   vector<int> parens, curls, sqrs;
+  vector<Colour> bracketColours = {PURPLE, WHITE};
+  bool bracketColour = false;
   Colour nextColour;
   for (int ind = 0, n = tokenList.size(); ind < n; ind++){
     TokenType tt = tokenList[ind].type;
@@ -128,14 +130,15 @@ vector<Colour> Formula::getColouring(){
         if ((tt==RPAR && parens.empty()) || (tt==RSQR && sqrs.empty()) || (tt==RCURL && curls.empty()))
           nextColour = RED;
         else {
-          nextColour = WHITE;
+          nextColour = (bracketColour ? bracketColours[0] : bracketColours[1]);
           if (tt == RPAR) {
-            result[parens.back()] = WHITE; parens.pop_back();
+            result[parens.back()] = nextColour; parens.pop_back();
           } else if (tt == RSQR) {
-            result[sqrs.back()] = WHITE; sqrs.pop_back();
+            result[sqrs.back()] = nextColour; sqrs.pop_back();
           } else {
-            result[curls.back()] = WHITE; curls.pop_back();
+            result[curls.back()] = nextColour; curls.pop_back();
           }
+          bracketColour = !bracketColour;
         } break;
       default: nextColour = WHITE; break;
     }

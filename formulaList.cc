@@ -26,7 +26,8 @@ bool FormulaList::setColour(int index, Colour newColour){
 }
 
 vector<Colour> FormulaList::getFormulaColouring(int index){
-  if (formulaSet.find(index) != formulaSet.end() && errorStatus[index] == NONE) {
+  if (formulaSet.find(index) != formulaSet.end() && 
+    errorStatus[index] != TOKENIZATION && errorStatus[index] != PREFIX) {
     vector<Colour> prefixColouring;
     if (nameTypeMapping[formulaSet[index]->getName()] == FUNCTION){
       prefixColouring = {BLUE, WHITE, CYAN, WHITE, YELLOW};

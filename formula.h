@@ -97,7 +97,7 @@ class Parameter : public Formula {
 };
 
 class Expression : public Formula {
-  bool isFreeVar(char c) override { return getName() == c; }
+  bool isFreeVar(char c) override { return c == getFreeVar(); }
 
   public:
 

@@ -190,7 +190,7 @@ int FormulaModel::displaySingleFormula(int line, int index, bool useColouring){
   currentLine++;
   int printedIndex = maxCol - FORMULA_BUFFER, maxInd = stringSet[index].length();
   while (printedIndex < maxInd && currentLine < maxRow-3){
-    colourScheme.erase(colourScheme.begin()+FORMULA_BUFFER, colourScheme.begin()+maxCol-FORMULA_BUFFER);
+    if (useColouring && colourScheme.size() >= maxCol - FORMULA_BUFFER) colourScheme.erase(colourScheme.begin()+FORMULA_BUFFER, colourScheme.begin()+maxCol);
     view->updateRow(currentLine, string(FORMULA_BUFFER,' ') + stringSet[index].substr(printedIndex), colourScheme);
     printedIndex += maxCol - FORMULA_BUFFER;
     currentLine++;

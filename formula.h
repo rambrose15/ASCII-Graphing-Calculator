@@ -80,7 +80,7 @@ class Parameter : public Formula {
   bool upToDate = false;
   bool defined = false;
   int currentStep = 0;
-  inline static const int MAX_STEP = 4;
+  inline static const int MAX_STEP = 5;
 
   void computeValue();
 

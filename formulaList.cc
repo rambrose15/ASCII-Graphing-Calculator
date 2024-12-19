@@ -371,6 +371,7 @@ GraphPackage FormulaList::getGraphs(int rLen, int cLen, const BigRational& coord
     for (auto formula = formulaSet.begin(); formula != formulaSet.end(); formula++){
       FormulaType fType = nameTypeMapping[formula->second->getName()];
       if (fType != FUNCTION && fType != EXPRESSION) continue;
+      if (errorStatus[formula->first] != NONE) continue;
       string graph; vector<int> positions;
       bool xfunc = formula->second->getFreeVar() == 'x';
       int maxInd = (xfunc ? cLen : rLen);
@@ -487,6 +488,7 @@ void FormulaList::updateParameterized(int rLen, int cLen, const BigRational& coo
     vector<int> indices = (i ? gp.yFuncIndices : gp.xFuncIndices);
     for (int j = 0, n = indices.size(); j < n; j++){
       bool needsUpdate = false;
+      if (errorStatus[indices[j]] != NONE) continue;
       for (char p : formulaSet[indices[j]]->getParameters()){
         if (activeParams.count(nameIndexMapping[p])){
           needsUpdate = true;

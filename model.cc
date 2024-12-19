@@ -33,15 +33,10 @@ void Model::updateCommand(std::variant<char,KeyPress> input){
           // Case that the tail of the command is not fully on-screen
           if (maxCol - commandCursorPosition >= currentCommand.length() - commandCursorIndex){
             if (commandCursorPosition > 0) --commandCursorPosition;
-            //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition, maxCol));
           } 
-          // Case that the front of the command is not fully on-screen
-          else if (commandCursorIndex > commandCursorPosition){
-            //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition));
-          } 
-          else{ // The normal case
+          // Case that the front of the command is fully on-screen
+          else if (commandCursorIndex <= commandCursorPosition){
             --commandCursorPosition;
-            //view->updateRow(commandRow, currentCommand);
           }
         }
         break;
@@ -52,16 +47,10 @@ void Model::updateCommand(std::variant<char,KeyPress> input){
         commandCursorPosition = 0;
         break;
       case LEFTARROW:
-        /*if (commandCursorPosition == 0 && commandCursorIndex > 0){
-          view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-1, maxCol));
-        }*/
         if (commandCursorPosition > 0) --commandCursorPosition;
         if (commandCursorIndex > 0) --commandCursorIndex;
         break;
       case RIGHTARROW:
-        if (commandCursorPosition == maxCol-1 && commandCursorIndex < currentCommand.length()-1){
-          //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex - maxCol + 2, maxCol));
-        }
         if (commandCursorIndex < currentCommand.length()-1){
           ++commandCursorIndex;
           if (commandCursorPosition < maxCol-1) ++commandCursorPosition;
@@ -74,7 +63,6 @@ void Model::updateCommand(std::variant<char,KeyPress> input){
     currentCommand.insert(currentCommand.begin()+commandCursorIndex, newChar);
     ++commandCursorIndex;
     if (commandCursorPosition < maxCol-1) ++commandCursorPosition;
-    //view->updateRow(commandRow, currentCommand.substr(commandCursorIndex-commandCursorPosition));
   }
   if (commandMode) {
     view->updateRow(commandRow, currentCommand.substr(commandCursorIndex - commandCursorPosition));

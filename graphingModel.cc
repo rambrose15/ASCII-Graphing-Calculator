@@ -366,7 +366,7 @@ void GraphingModel::graphLines(vector<string>& graphScreen){
     for (BigRational pos = screenInfo->screenDimXL+squareSize; pos < line; pos = pos+squareSize) charInd++;
     for (int i = 0; i < maxRow-2; i++) graphScreen[i][charInd] = '|';
   }
-  squareSize = (screenInfo->screenDimYR - screenInfo->screenDimYL) / BigRational(std::to_string(maxRow));
+  squareSize = (screenInfo->screenDimYR - screenInfo->screenDimYL) / BigRational(std::to_string(maxRow-2));
   for (auto line : hLineSet){
     if (screenInfo->screenDimYR < line || line < screenInfo->screenDimYL) continue;
     int charInd = 0;

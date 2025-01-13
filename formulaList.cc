@@ -454,8 +454,9 @@ std::pair<string,vector<int>> FormulaList::getSingleGraph(int rLen, int cLen, co
     int ceilingIndex = (xfunc ? rLen : cLen);
     if (validPrev && validNext){
       BigRational halfsq = (xfunc ? coordYR - coordYL : coordXR - coordXL) / BigRational(std::to_string(ceilingIndex*2));
+      BigRational midVal = (nextVal + prevVal) / BigRational("2");
       for (; pos < ceilingIndex && 
-      (xfunc ? coordYL : coordXL)+(BigRational(std::to_string((pos+1)*2))*halfsq) < prevVal; ++pos);
+      (xfunc ? coordYL : coordXL)+(BigRational(std::to_string((pos+1)*2))*halfsq) < midVal; ++pos);
       if (prevVal < nextVal){
         if (nextVal < prevVal + halfsq) ch = '.';
         else ch = '/';

@@ -1,4 +1,4 @@
-#include "bigRational.h"
+#include "big_rational.h"
 #define TWOPI BigRational("6.283185")
 #define HALFPI BigRational("1.570796")
 #define FULLPI BigRational("3.141593")

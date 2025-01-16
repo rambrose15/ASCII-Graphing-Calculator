@@ -9,9 +9,9 @@
 
 #include "formula.h"
 #include "parser.h"
-#include "formulaError.h"
-#include "bigRational.h"
-#include "colour.h"
+#include "formula_error.h"
+#include "../numeric/big_rational.h"
+#include "../../utility/colour.h"
 
 class ComputeError{};
 

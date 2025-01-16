@@ -5,7 +5,7 @@
 #include <vector>
 #include <map>
 #include <ncurses.h>
-#include "colour.h"
+#include "../utility/colour.h"
 
 class View{
 

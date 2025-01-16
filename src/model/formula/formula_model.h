@@ -1,7 +1,7 @@
 #ifndef __FORMULA_MODEL_H__
 #define __FORMULA_MODEL_H__
 
-#include "model.h"
+#include "../model.h"
 #include <vector>
 #include <string>
 

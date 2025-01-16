@@ -4,12 +4,12 @@
 #include <memory>
 #include <ncurses.h>
 
-#include "view.h"
-#include "controller.h"
-#include "formulaList.h"
-#include "formulaModel.h"
-#include "graphingModel.h"
-#include "screenInfo.h"
+#include "../view/view.h"
+#include "../controller/controller.h"
+#include "formula/formula_list.h"
+#include "formula/formula_model.h"
+#include "graphing/graphing_model.h"
+#include "formula/screen_info.h"
 
 class GraphingCalculator{
   View view;

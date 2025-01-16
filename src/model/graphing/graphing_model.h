@@ -1,14 +1,14 @@
 #ifndef __GRAPHING_MODEL_H__
 #define __GRAPHING_MODEL_H__
 
-#include "model.h"
+#include "../model.h"
 #include <set>
 #include <chrono>
 #include <ctime>
 
 class GraphingModel : public Model{
-  GraphPackage gp;
-  std::vector<BigRational> vLineSet, hLineSet;
+  GraphPackage gp; // Stores the data on the graphs of the functions
+  std::vector<BigRational> vLineSet, hLineSet; // Store the h&v lines
   std::set<int> hidden;
   std::set<int> playing;
   int displayValueInd;

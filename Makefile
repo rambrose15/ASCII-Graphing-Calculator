@@ -20,19 +20,16 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cc
 	$(CXX) $(CXX_FLAGS) -c -o $@ $<
 
 
-TEST_FLAGS = -std=c++20 -Wall -g -O0 -Isrc -Ilibs/doctest
+TEST_FLAGS = -std=c++20 -Wall -g -O0 -Isrc/model -Ilibs/doctest
 TEST_DIR = tests
 TEST_OBJ_DIR = $(OBJ_DIR)/test
-TEST_MAIN_OBJ = $(TEST_OBJ_DIR)/test_main.o
 TEST_SOURCES = $(shell find $(TEST_DIR) -name '*.cc' -print)
 TEST_OBJECTS = $(patsubst tests/%.cc,$(TEST_OBJ_DIR)/%.o,$(TEST_SOURCES))
 SRC_OBJECTS_FOR_TEST = $(filter-out $(OBJ_DIR)/main.o,$(OBJECTS))
 TEST_EXEC = $(TEST_OBJ_DIR)/test-suite
 
-$(TEST_EXEC): $(TEST_MAIN_OBJ)
-	$(CXX) $(TEST_MAIN_OBJ) -o $(TEST_EXEC) $(TEST_FLAGS) $(LIBS)
-
-$(TEST_MAIN_OBJ): $(SRC_OBJECTS_FOR_TEST) $(TEST_OBJECTS)
+$(TEST_EXEC): $(TEST_OBJECTS) $(SRC_OBJECTS_FOR_TEST)
+	$(CXX) $(TEST_OBJECTS) $(SRC_OBJECTS_FOR_TEST) -o $(TEST_EXEC) $(TEST_FLAGS) $(LIBS)
 
 $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cc
 	@mkdir -p $(dir $@) 
@@ -40,6 +37,7 @@ $(TEST_OBJ_DIR)/%.o: $(TEST_DIR)/%.cc
 
 .PHONY: test
 test: $(TEST_EXEC)
+	./$(TEST_EXEC)
 	
 .PHONY: clean
 

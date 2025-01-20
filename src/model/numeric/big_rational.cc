@@ -56,12 +56,14 @@ BigRational BigRational::modulo(BigRational num, const BigRational& modder) cons
 }
 
 BigRational BigRational::computeSin(const BigRational& num) const{
+    // Use the Taylor Series approximation for sine
     return num - ((num ^ BigRational("3")) / BigRational("6")) 
             + ((num ^ BigRational("5")) / BigRational("120"))
             - ((num ^ BigRational("7")) / BigRational("5040"));
 }
 
 BigRational BigRational::computeCos(const BigRational& num) const{
+    // Use the Taylor Series approximation for cosine
     return BigRational("1") - ((num ^ BigRational("2")) / BigRational("2")) 
             + ((num ^ BigRational("4")) / BigRational("24"))
             - ((num ^ BigRational("6")) / BigRational("720"));
@@ -84,5 +86,6 @@ string BigRational::getDecimalForm(size_t decimalPrecision) const {
     else if (decimalPrecision > 0 && result.length() <= decimalPrecision) {
         result = "0." + string(decimalPrecision-result.length(), '0') + result;
     }
+    if (num.isNegative()) result = "-" + result;
     return result;
 }

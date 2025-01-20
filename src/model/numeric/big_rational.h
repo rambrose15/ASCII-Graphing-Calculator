@@ -1,44 +1,10 @@
 #ifndef __BIG_RATIONAL_H__
 #define __BIG_RATIONAL_H__
 
+#include "big_num.h"
 #include <vector>
 #include <string>
 
-class BigNum {
-    std::vector<int> digits; // Largest digit at back, smallest digit at front
-    size_t len;
-    bool negative;
-    BigNum(std::vector<int> digits, bool negative);
-    
-    // Helper functions for the real operation implementations
-    std::vector<int> addUnsigned(const BigNum& other) const;
-    std::vector<int> subUnsigned(const BigNum& other) const;
-    BigNum modulo(const BigNum& other) const;
-    BigNum abs() const;
-    BigNum divideUnsigned(BigNum dividend, const BigNum& divisor, bool quotient) const;
-
-    public:
-
-    BigNum(std::string digitString = "0");
-
-    bool operator==(const BigNum& other) const;
-    bool operator<(const BigNum& other) const;
-
-    BigNum operator+(const BigNum& other) const;
-    BigNum operator-(const BigNum& other) const;
-    BigNum operator-() const;
-    BigNum operator*(const BigNum& other) const;
-    BigNum operator^(const BigNum& other) const;
-    
-    void quotient(const BigNum& other);
-    void gcdReduce(BigNum& other);
-    private: BigNum findGCD(const BigNum& a, const BigNum& b) const;
-    public:
-
-    bool isNegative() const { return negative; }
-
-    std::string getDecimal() const;
-};
 
 class BigRational{
     
@@ -83,7 +49,7 @@ class BigRational{
 
     BigRational operator^(const BigRational& other) const{ 
         BigNum power = other.numerator;
-        power.quotient(other.denominator);
+        power = power / other.denominator;
         if (!power.isNegative()) return BigRational(numerator ^ power, denominator ^ power);
         else return BigRational(denominator ^ (-power), numerator ^ (-power));
     }

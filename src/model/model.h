@@ -5,11 +5,11 @@
 #include <string>
 #include <variant>
 
-#include "view.h"
-#include "controller.h"
-#include "formulaList.h"
-#include "screenInfo.h"
-#include "colour.h"
+#include "../view/view.h"
+#include "../controller/controller.h"
+#include "formula/formula_list.h"
+#include "formula/screen_info.h"
+#include "../utility/colour.h"
 
 enum ExitStatus{
   NOSTATUS, QUIT, SWITCH

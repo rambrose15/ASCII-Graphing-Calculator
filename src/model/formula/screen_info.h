@@ -1,7 +1,7 @@
 #ifndef __SCREEN_INFO_H__
 #define __SCREEN_INFO_H__
 
-#include "bigRational.h"
+#include "../numeric/big_rational.h"
 
 struct ScreenInfo{
   // Screen size settings

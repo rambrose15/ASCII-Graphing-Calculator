@@ -1,4 +1,4 @@
-#include "formulaModel.h"
+#include "formula_model.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -7,6 +7,8 @@
 using std::vector,std::string, std::variant;
 using std::ofstream, std::ifstream;
 
+// Processes the commands specific to the Formula Window.
+// Returns true if the command was successfully processed, false otherwise.
 bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
   int wordLen = cmdWords.size();
   if (wordLen == 2 && (cmdWords[0] == "select" || cmdWords[0] == "view")){
@@ -81,6 +83,8 @@ bool FormulaModel::processCommandSpecific(vector<string> cmdWords) {
   return false;
 }
 
+// The logic for when the user is not in command mode
+// For the formula window, this means they are editing a formula.
 void FormulaModel::runOutsideCommand(){
   variant<char,KeyPress> input = controller->getInput();
   if (std::holds_alternative<KeyPress>(input)){
@@ -145,14 +149,19 @@ void FormulaModel::initializeSpecific() {
   displayFormulas(1, true);
 }
 
+// Refreshes the formula display when the colour of a formula changes.
 void FormulaModel::onColourChange(int index){
   displayFormulas(selectedFormula, true);
 }
 
+// Refreshes the formula display when screen size changes.
 void FormulaModel::onScreenSizeChange() {
   displayFormulas(selectedFormula);
 }
 
+// Updates the view to display the stored formulas.
+// If extras is true, it will also display error messages and colour the formulas.
+// Display formulas starting from the "startInd" index.
 void FormulaModel::displayFormulas(int startInd, bool extras){
   int currentLine = 0;
   for (int ind = startInd; currentLine < maxRow - 3 && ind < 100; ind++){
@@ -171,7 +180,7 @@ void FormulaModel::displayFormulas(int startInd, bool extras){
   while (currentLine <= maxRow-3) view->updateRow(currentLine++, "");
 }
 
-// Returns the number of lines it used
+// Returns the number of lines it used to display the formula
 int FormulaModel::displaySingleFormula(int line, int index, bool useColouring){
   int currentLine = line;
   vector<Colour> colourScheme((index < 10 ? 2 : 3), (formulas->getColour(index) == NOCOLOUR ? BLACK : formulas->getColour(index)));
@@ -198,6 +207,8 @@ int FormulaModel::displaySingleFormula(int line, int index, bool useColouring){
   return currentLine - line;
 }
 
+// Saves the current formula set to a file.
+// Returns true if the save was successful, false otherwise.
 bool FormulaModel::saveToFile(const string& fileName){
   ofstream saveFile;
   saveFile.open(fileName);
@@ -213,6 +224,8 @@ bool FormulaModel::saveToFile(const string& fileName){
   return true;
 }
 
+// Loads formulas from a provided file.
+// Returns true if the load was successful, false otherwise.
 bool FormulaModel::loadFromFile(const std::string& fileName){
   ifstream loadFile;
   loadFile.open(fileName);

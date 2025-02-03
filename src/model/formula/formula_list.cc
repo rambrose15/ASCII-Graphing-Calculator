@@ -4,7 +4,7 @@
 #include <vector>
 #include <typeinfo>
 
-#include "formulaList.h"
+#include "formula_list.h"
 
 using std::string, std::map, std::unique_ptr, std::vector, std::set;
 

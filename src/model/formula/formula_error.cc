@@ -1,4 +1,4 @@
-#include "formulaError.h"
+#include "formula_error.h"
 
 std::string formulaErrorString(FormulaError es){
   {

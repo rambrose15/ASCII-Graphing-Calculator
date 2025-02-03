@@ -1,4 +1,4 @@
-#include "graphingCalculator.h"
+#include "model/graphing_calculator.h"
 #include <string>
 
 int main(int argc, char* args[]){

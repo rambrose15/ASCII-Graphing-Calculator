@@ -9,9 +9,9 @@
 
 #include "token.h"
 #include "parser.h"
-#include "formulaError.h"
-#include "bigRational.h"
-#include "colour.h"
+#include "formula_error.h"
+#include "../numeric/big_rational.h"
+#include "../../utility/colour.h"
 
 enum FormulaType{
   CONSTANT, PARAMETER, EXPRESSION, FUNCTION

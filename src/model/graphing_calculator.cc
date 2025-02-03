@@ -1,4 +1,8 @@
-#include "graphingCalculator.h"
+#include "graphing_calculator.h"
+
+// Mediatory between the view, controller, and model components.
+// Responsible for initializing, configuring, and closing the curses library.
+// Used to pass control between the formula model and graphing model.
 
 GraphingCalculator::GraphingCalculator(): 
   view{}, controller{}, formulas{},

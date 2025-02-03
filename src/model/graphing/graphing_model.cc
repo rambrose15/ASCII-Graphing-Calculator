@@ -1,4 +1,4 @@
-#include "graphingModel.h"
+#include "graphing_model.h"
 
 using std::vector, std::pair, std::string, std::set, std::variant;
 
@@ -15,6 +15,8 @@ void GraphingModel::initializeSpecific() {
   graphFunctions();
 }
 
+// Processes the commands specific to the Graphing Window.
+// Returns true if the command was successfully processed, false otherwise.
 bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
   int wordLen = cmdWords.size();
   if (wordLen == 2 && cmdWords[0] == "vline"){
@@ -158,6 +160,7 @@ bool GraphingModel::processCommandSpecific(vector<string> cmdWords){
   return false;
 }
 
+// Handles parameter value updates 
 void GraphingModel::runInsideCommand() {
   if (!playing.empty()){
     std::chrono::duration<double> timeElasped = std::chrono::system_clock::now() - startTime;
@@ -172,6 +175,7 @@ void GraphingModel::runInsideCommand() {
   } else startTime = std::chrono::system_clock::now();
 }
 
+// Handles zooming and tracing, which are done outside the command line.
 void GraphingModel::runOutsideCommand() {
   variant<char,KeyPress> input = controller->getInput();
   if (std::holds_alternative<KeyPress>(input)){
@@ -181,6 +185,7 @@ void GraphingModel::runOutsideCommand() {
   }
 }
 
+// Handles user input during the zoom mode.
 void GraphingModel::zoomSelect(KeyPress key){
   switch(key){
     case LEFTARROW:
@@ -219,6 +224,7 @@ pair<BigRational,BigRational> GraphingModel::ComputeZoom(const BigRational& lBou
   else return {mid + lBound - (mid * currentZoom), mid + lBound + ((uBound - lBound - mid) * currentZoom)};
 }
 
+// Handles user input during the trace mode.
 void GraphingModel::trace(KeyPress key){
   int gpIndex = -1;
   for (int i = 0, n = gp.xFuncIndices.size(); i < n; ++i){
@@ -307,6 +313,7 @@ void GraphingModel::onCommandExecute(){
   displayValueInd = -1;
 }
 
+// Displays the graphs contained in the graph packge (gp) onto the screen.
 void GraphingModel::graphFunctions(){
   vector<string> graphScreen(maxRow-2, string(maxCol, ' '));
   vector<vector<Colour>> colourScheme(maxRow-2, vector<Colour>(maxCol, WHITE));
@@ -318,11 +325,12 @@ void GraphingModel::graphFunctions(){
     for (int pos = 0; pos < maxCol; ++pos){
       if (gp.xStrings[ind][pos] == ' ') continue;
       if (hidden.count(gp.xFuncIndices[ind])) continue;
-      if (formulas->getColour(gp.xFuncIndices[ind]) == NOCOLOUR) continue;
+      if (formulas->getColour(gp.xFuncIndices[ind]) == NOCOLOUR) continue; // Don't graph hidden functions
+      // If the chatacter is occupied, we have an intersection, denoted with '#'
       if (graphScreen[gp.xFuncPositions[ind][pos]][pos] != ' '){
         graphScreen[gp.xFuncPositions[ind][pos]][pos] = '#'; 
-        colourScheme[gp.xFuncPositions[ind][pos]][pos] = BLACK;
-      } else{
+        colourScheme[gp.xFuncPositions[ind][pos]][pos] = BLACK; // Intersections always black
+      } else{ // No intersection, graph the provided character
         graphScreen[gp.xFuncPositions[ind][pos]][pos] = gp.xStrings[ind][pos];
         colourScheme[gp.xFuncPositions[ind][pos]][pos] = formulas->getColour(gp.xFuncIndices[ind]);
       }
@@ -332,32 +340,39 @@ void GraphingModel::graphFunctions(){
   for (int ind = 0, n = gp.yFuncIndices.size(); ind < n; ++ind){
     for (int pos = 0; pos < maxRow-2; ++pos){
       if (gp.yStrings[ind][pos] == ' ') continue;
-      if (formulas->getColour(gp.yFuncIndices[ind]) == NOCOLOUR) continue;
+      if (formulas->getColour(gp.yFuncIndices[ind]) == NOCOLOUR) continue; // Don't graph hidden functions
+      // If the chatacter is occupied, we have an intersection, denoted with '#'
       if (graphScreen[pos][gp.yFuncPositions[ind][pos]] != ' '){
         graphScreen[pos][gp.yFuncPositions[ind][pos]] = '#';
-        colourScheme[pos][gp.yFuncPositions[ind][pos]] = BLACK;
-      } else{
+        colourScheme[pos][gp.yFuncPositions[ind][pos]] = BLACK; // Intersections always black
+      } 
+      else { // No intersection, graph the provided character
         graphScreen[pos][gp.yFuncPositions[ind][pos]] = gp.yStrings[ind][pos];
         colourScheme[pos][gp.yFuncPositions[ind][pos]] = formulas->getColour(gp.yFuncIndices[ind]);
       }
     }
   }
+  
+  // Update the view
   for (int ind = 0; ind < maxRow-2; ++ind){
     view->updateRow(maxRow-3-ind, graphScreen[ind], colourScheme[ind]);
   }
 }
 
+// Gets the updated graphing package from the formula list
 void GraphingModel::updateGP(){
   gp = formulas->getGraphs(maxRow-2, maxCol, 
     screenInfo->screenDimXL, screenInfo->screenDimXR, screenInfo->screenDimYL, screenInfo->screenDimYR);
 }
 
+// Updates the parameterized formulas in the formula list and graphs them.
 void GraphingModel::parameterUpdate(const set<int>& params){
   formulas->updateParameterized(maxRow-2, maxCol, screenInfo->screenDimXL, screenInfo->screenDimXR,
       screenInfo->screenDimYL, screenInfo->screenDimYR, gp, params);
   graphFunctions();
 }
 
+// Update the provided graphScreen with the h&v lines, including axes.
 void GraphingModel::graphLines(vector<string>& graphScreen){
   BigRational squareSize = (screenInfo->screenDimXR - screenInfo->screenDimXL) / BigRational(std::to_string(maxCol));
   for (auto line : vLineSet){

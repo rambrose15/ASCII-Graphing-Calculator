@@ -3,7 +3,7 @@
 
 #include <variant>
 #include <ncurses.h>
-#include <map>
+#include <utility>
 
 enum KeyPress{
   UPARROW, DOWNARROW, LEFTARROW, RIGHTARROW,

@@ -4,5 +4,4 @@
 *.sh
 *.dSYM
 *.txt
-Makefile
 graphingCalculatorProgram

@@ -4,4 +4,4 @@
 *.sh
 *.dSYM
 *.txt
-graphingCalculatorProgram
+build/

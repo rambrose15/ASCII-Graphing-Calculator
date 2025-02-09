@@ -6,8 +6,8 @@ using std::vector, std::string;
 BigNum::BigNum(string digitString) { // Assumes the string has only numerics or a negative in the front
     int n = digitString.length();
     int startInd = 0; // This points to the first relevant character of the digitString
-    while (startInd < n && 
-        (digitString[startInd] == '0' || digitString[startInd] == '-')) startInd++;
+    while (startInd < n && (digitString[startInd] == '0' || digitString[startInd] == '-')) 
+        startInd++;
     if (startInd == n){
         digits = vector<int>{0};
         negative = false;
@@ -177,11 +177,12 @@ BigNum BigNum::findGCD(const BigNum& a, const BigNum& b) const{
 }
 
 string BigNum::getDecimal() const {
-    string s;
-    if (negative) s +=  "-";
+    string s = "";
+    if (negative) s += "-";
     for (int i = len-1; i >= 0; i--) {
         string digitString = std::to_string(digits[i]);
-        s += (i != len-1 ? string(9-digitString.length(), '0') : "") + digitString;
+        if (i != len-1) s += string(9-digitString.length(), '0'); // '0' padding
+        s += digitString;
     }
     return s;
 }

@@ -6,7 +6,10 @@
 
 
 class BigNum {
-    std::vector<int> digits; // Largest digit at back, smallest digit at front
+    // Represents number in base 1,000,000
+    // As such, each digit is in the range 0-999,999
+    // Largest digit at back, smallest digit at front
+    std::vector<int> digits;
     size_t len;
     bool negative;
     BigNum(std::vector<int> digits, bool negative);

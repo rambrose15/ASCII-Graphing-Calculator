@@ -2,6 +2,8 @@
 
 This is an ASCII graphing calculator application built using C++ and the ncurses library. It provides a simple graphing calculator application entirely in your terminal. What follows is a guide on the various features the application provides and how they can be used.
 
+![Graphing Calculator Demo Recording](https://github.com/user-attachments/assets/bfdb3265-a871-420c-a6c6-37716c0ca365)
+
 ## Function Window
 
 This is the window that appears when you open the application. You can use this to input the functions and expressions that will be graphed. Here is a list of the available commands in this window:
